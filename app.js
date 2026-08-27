@@ -152,15 +152,16 @@ document.addEventListener('DOMContentLoaded', refresh);
 
 window.addEventListener('load', () => {
   refresh();
-  // A short pause so the user can actually read "100%" before the swap.
-  setTimeout(finish, 350);
+  // Hold the completed loading state for a moment before revealing WELCOME.
+  // This creates a deliberate visual beat between the two screens.
+  setTimeout(finish, 2000);
 });
 
 // If the page is already loaded when this runs (very fast/local case),
 // jump straight to the finished state.
 if (document.readyState === 'complete') {
   refresh();
-  setTimeout(finish, 350);
+  setTimeout(finish, 2000);
 }
 
 // Public hook: report in later from async work (data fetches, media).
