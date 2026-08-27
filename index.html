@@ -14,7 +14,7 @@
     rel="stylesheet"
   />
 
-  <link rel="stylesheet" href="style.css?v=20260828-ui" />
+  <link rel="stylesheet" href="style.css?v=20260828-ui2" />
   <script type="importmap">
 {
             "imports": {
@@ -565,6 +565,8 @@
       background-size: 96px 96px;
     }
     #terminal .top-bar { background: rgba(250, 247, 240, 0.72); backdrop-filter: blur(12px); padding: 6px 16px 8px; }
+    /* 终端的全局 reset 会清掉外部按钮内边距，这里显式恢复返回键尺寸。 */
+    #terminal .terminal-close { padding: 12px 16px; }
     #terminal .top-bar .main-title { font-family: var(--font-display); font-weight: 800; letter-spacing: 0.5px; }
     #terminal #main-ui { padding: 26px 32px 24px; }
     #terminal .top-bar,
@@ -649,10 +651,20 @@
     #terminal .b-t3 { margin: 0; line-height: 1.45; }
     #terminal .b-status { line-height: 1.45; margin: 0 0 28px; }
 
-    /* 参数改为等宽信息块，标题、标签和数值的阅读顺序更清楚。 */
+    /* 参数区分成两列并增大选项间距，避免信息和操作框挤在一起。 */
+    #terminal .orbit-card { padding: 18px 22px; }
+    #terminal .orbit-card .card-head {
+      align-items: flex-start;
+      gap: 12px 24px;
+      margin-bottom: 16px;
+    }
+    #terminal .orbit-tabs,
+    #terminal .orbit-speed-ctl { gap: 7px; }
+    #terminal .orbit-tab,
+    #terminal .speed-btn { padding: 6px 14px; }
     #terminal .orbit-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px 18px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 72px;
     }
     #terminal .orbit-item {
       display: grid;
@@ -670,6 +682,7 @@
     }
     #terminal .orbit-item .value { line-height: 1.05; }
     #terminal .orbit-item .unit { margin-left: 0; }
+    #terminal .orbit-speed-row { margin-top: 14px; padding-top: 12px; }
 
     /* 无论窗口高度如何，内容都不会被终端的固定容器截断。 */
     #terminal #main-ui {
@@ -684,6 +697,8 @@
 
     @media (max-width: 900px) {
       #terminal .orbit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #terminal .orbit-card .card-head,
+      #terminal .orbit-tabs { flex-wrap: wrap; }
     }
 
     @media (max-height: 640px) and (min-width: 769px) {
