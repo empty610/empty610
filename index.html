@@ -651,17 +651,18 @@
     #terminal .b-t3 { margin: 0; line-height: 1.45; }
     #terminal .b-status { line-height: 1.45; margin: 0 0 28px; }
 
-    /* 参数区分成两列并增大选项间距，避免信息和操作框挤在一起。 */
-    #terminal .orbit-card { padding: 18px 22px; }
+    /* 场景优先：参数紧凑而整齐，让中间地球获得最大的可视区域。 */
+    #terminal .dashboard { gap: 12px; }
+    #terminal .orbit-card { padding: 14px 18px; }
     #terminal .orbit-card .card-head {
       align-items: flex-start;
-      gap: 12px 24px;
-      margin-bottom: 16px;
+      gap: 10px 20px;
+      margin-bottom: 12px;
     }
     #terminal .orbit-tabs,
     #terminal .orbit-speed-ctl { gap: 7px; }
     #terminal .orbit-tab,
-    #terminal .speed-btn { padding: 6px 14px; }
+    #terminal .speed-btn { padding: 5px 12px; }
     #terminal .orbit-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px 72px;
@@ -682,7 +683,18 @@
     }
     #terminal .orbit-item .value { line-height: 1.05; }
     #terminal .orbit-item .unit { margin-left: 0; }
-    #terminal .orbit-speed-row { margin-top: 14px; padding-top: 12px; }
+    #terminal .orbit-panel:not([data-panel="global"]) .orbit-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px 42px;
+    }
+    #terminal .orbit-speed-row { margin-top: 12px; padding-top: 10px; }
+    #terminal .scene-wrapper {
+      flex: 1 1 0;
+      min-height: clamp(180px, 30vh, 320px);
+    }
+    #terminal .attitude-panel { padding: 10px 14px 12px; }
+    #terminal .multi-attitude-grid { gap: 8px; }
+    #terminal .widget-card { min-height: 88px; padding: 8px 12px 10px; }
 
     /* 无论窗口高度如何，内容都不会被终端的固定容器截断。 */
     #terminal #main-ui {
@@ -697,8 +709,46 @@
 
     @media (max-width: 900px) {
       #terminal .orbit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #terminal .orbit-panel:not([data-panel="global"]) .orbit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       #terminal .orbit-card .card-head,
       #terminal .orbit-tabs { flex-wrap: wrap; }
+    }
+
+    /* Desktop dashboard: dedicate the screen to the live Earth view; the data panels stay
+       compact but retain a clear hierarchy and full numeric readability. */
+    @media (min-width: 901px) and (max-height: 820px) {
+      #terminal #main-ui { padding: 16px 32px 8px; }
+      #terminal .top-bar { padding: 8px 18px 9px; margin-bottom: 10px; }
+      #terminal .dashboard { gap: 8px; }
+      #terminal .orbit-card { padding: 8px 14px 9px; }
+      #terminal .orbit-card .card-head { gap: 5px 14px; margin-bottom: 5px; }
+      #terminal .card-title { font-size: 10px; }
+      #terminal .orbit-tab { font-size: 9px; padding: 3px 9px; }
+      #terminal .sc-panel-head { gap: 5px; margin-bottom: 3px; }
+      #terminal .sc-panel-head .sc-dot { width: 8px; height: 8px; }
+      #terminal .sc-panel-head .sc-name { font-size: 10px; }
+      #terminal .sc-panel-head .sc-tag { font-size: 7.5px; }
+      #terminal .orbit-grid { gap: 5px 40px; }
+      #terminal .orbit-panel:not([data-panel="global"]) .orbit-grid { gap: 5px 30px; }
+      #terminal .orbit-item .label { font-size: 8px; margin-bottom: 0; }
+      #terminal .orbit-item .value { font-size: 18px; }
+      #terminal .orbit-item .unit { font-size: 10px; }
+      #terminal .orbit-speed-row { margin-top: 5px; padding-top: 5px; }
+      #terminal .speed-btn { font-size: 9px; padding: 3px 9px; }
+      #terminal .scene-wrapper { min-height: 0; }
+      #terminal .attitude-panel { padding: 6px 12px 7px; }
+      #terminal .panel-title { font-size: 10px; margin-bottom: 3px; }
+      #terminal .multi-attitude-grid { gap: 6px; }
+      #terminal .widget-card { min-height: 56px; padding: 4px 9px 5px; border-radius: 12px; }
+      #terminal .widget-card .sc-title { font-size: 10px; margin-bottom: 1px; }
+      #terminal .widget-card .data-group { gap: 0; }
+      #terminal .widget-card .data-item { font-size: 10px; padding: 0; }
+      #terminal .widget-card .data-label { font-size: 7px; }
+      #terminal .widget-card .data-val { font-size: 12px; }
+      #terminal .status-row { min-height: 16px; margin-top: 0; padding-top: 1px; }
+      #terminal .status-label { font-size: 8px; }
+      #terminal .status-value { font-size: 13px; }
+      #terminal .tracking-label { font-size: 9px; padding: 4px 8px; }
     }
 
     @media (max-height: 640px) and (min-width: 769px) {
@@ -1109,15 +1159,17 @@
         let onLockVehicle = null;   // 由 3D 场景注册：锁定视角跟随某航天器
         let onUnlockVehicle = null; // 由 3D 场景注册：解除视角锁定
 
-        function switchOrbitPanel(target) {
+        function switchOrbitPanel(target, lockCamera = false) {
             orbitTabBtns.forEach(t => t.classList.toggle('active', t.dataset.target === target));
             orbitPanels.querySelectorAll('.orbit-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === target));
             vehicleCards.forEach(c => c.classList.toggle('selected', c.dataset.sc === target));
             orbitTitle.textContent = target === 'global' ? 'Orbital Parameters' : `Orbital Parameters · ${target}`;
-            if (target === 'global') {
-                if (onUnlockVehicle) onUnlockVehicle();
-            } else if (onLockVehicle) {
+            // Parameter tabs should only change the data.  Keeping their camera independent
+            // leaves the Earth centered and fully visible in the main scene.
+            if (lockCamera && target !== 'global' && onLockVehicle) {
                 onLockVehicle(target);
+            } else if (onUnlockVehicle) {
+                onUnlockVehicle();
             }
         }
 
@@ -1227,7 +1279,10 @@
 
             const isMobile = window.innerWidth < 768;
             const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(isMobile ? 3.5 : 4.2, isMobile ? 1.8 : 2.8, isMobile ? 5.2 : 5.6);
+            // Keep the planet fully inside the scene frame while using nearly all of its height.
+            // The desktop dashboard has a deliberately shallow scene strip, so a small pull-back
+            // prevents the globe from being clipped when a vehicle parameter panel is selected.
+            camera.position.set(isMobile ? 3.5 : 2.6, isMobile ? 1.8 : 1.73, isMobile ? 5.2 : 3.47);
             camera.lookAt(0, 0, 0);
 
             const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -1492,7 +1547,7 @@
                 clickRaycaster.setFromCamera(pointer, camera);
                 const hits = clickRaycaster.intersectObjects(clickableMeshes, false);
                 if (hits.length > 0 && hits[0].object.userData.scName) {
-                    switchOrbitPanel(hits[0].object.userData.scName);
+                    switchOrbitPanel(hits[0].object.userData.scName, true);
                 } else {
                     // 点空白处：切回 Orbital 标签并解锁视角，保持界面与视角一致
                     switchOrbitPanel('global');
