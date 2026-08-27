@@ -281,6 +281,11 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   opacity: 0;
 }
 
+/* 首屏 WELCOME 随滚动离场时使用更舒缓的 3 秒淡出。 */
+.js .hero.reveal-fade {
+  transition: opacity 3s ease;
+}
+
 /* 三色装饰条 */
 .accent-bar {
   display: block;
