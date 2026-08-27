@@ -202,28 +202,57 @@ body {
 .music-toggle:active { transform: translateY(0); }
 html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 90, 0.35); }
 
+/* 第三面入口与仪表盘返回键共用深色金边面板。 */
+.terminal-close,
+.enter-btn {
+  color: #f6f1e8;
+  background: rgba(13, 11, 8, 0.9);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(217, 185, 90, 0.55);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.32);
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
 /* 终端覆盖层右上角的返回按钮 */
 .terminal-close {
   position: fixed;
   top: 16px;
   right: 18px;
   z-index: 99999;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   font-family: var(--font);
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #2b241c;
-  background: rgba(233, 229, 220, 0.88);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(184, 148, 56, 0.4);
-  padding: 11px 20px;
+  white-space: nowrap;
+  min-width: 118px;
+  line-height: 1;
+  padding: 12px 16px;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.25s ease, color 0.25s ease;
 }
 
-.terminal-close:hover { background: #b89438; color: #0d0b08; border-color: #b89438; }
+.back-u-turn {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.terminal-close:hover,
+.enter-btn:hover {
+  background: #b89438;
+  color: #0d0b08;
+  border-color: #b89438;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.3);
+}
 
 /* 终端覆盖层出现时的优雅进入（保持不透明，避免浅色底透出；深色启动界面直接呈现出） */
 .terminal-overlay {
@@ -481,35 +510,25 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   color: rgba(233, 229, 220, 0.85);
 }
 
-/* 进入按钮：黑色胶囊 + 白色文字 + 右上箭头（跳转到 earth.html） */
+/* 进入按钮：与仪表盘返回键一致的深色金边胶囊面板。 */
 .enter-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   margin-top: 3.2rem;
   padding: 15px 30px;
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
-  color: #fff;
   font-family: var(--font);
   font-size: 15px;
   font-weight: 500;
   letter-spacing: 0.02em;
   text-decoration: none;
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
-  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .enter-btn .btn-arrow {
   font-size: 13px;
   line-height: 1;
   transform: translateY(-2px);
-}
-
-.enter-btn:hover {
-  background: #1a1a1a;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
 }
 
 /* 文字：每次进入时播放一次 1.2s 入场动画；离开后重置以便下次重放 */
