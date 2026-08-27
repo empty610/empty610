@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>empty610's web</title>
+  <script>document.documentElement.classList.add('js');</script>
+
+  <!-- Avant Garde居然在微软要收费,真是骇人听闻 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+{
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+  </script>
+  <style>
+
+        #terminal * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        #terminal {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #e8e2d6;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 返回主站按钮 */
+        .site-back {
+            position: fixed;
+            top: 14px;
+            left: 16px;
+            z-index: 99999;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: #b89438;
+            background: rgba(244, 241, 234, 0.62);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(184, 148, 56, 0.40);
+            border-radius: 10px;
+            padding: 8px 14px;
+            text-decoration: none;
+            transition: color .25s ease, background .25s ease, border-color .25s ease;
+        }
+        .site-back:hover { color: #0d0b08; background: #b89438; border-color: #b89438; }
+
+        /* 音乐播放/暂停小按钮（右下角） */
+        .music-toggle {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 99999;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(20, 18, 14, 0.55);
+            backdrop-filter: blur(6px);
+            color: #e9e5dc;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.25s ease, color 0.25s ease, transform 0.15s ease;
+        }
+        .music-toggle:hover { background: rgba(20, 18, 14, 0.75); transform: translateY(-2px); }
+        .music-toggle:active { transform: translateY(0); }
+        html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 90, 0.35); }
+
+        /* 噪点叠层 */
+        #terminal::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.30;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+            background-size: 180px 180px;
+        }
+
+        /* ===== 全局背景过渡层 ===== */
+        #bg-transition {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background: #0d0b08;
+            transition: background 1.2s ease 0.3s;
+            pointer-events: none;
+        }
+        #bg-transition.to-light {
+            background: #e8e2d6;
+        }
+
+        /* ===== 启动界面 ===== */
+        #boot {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── 统一容器：控制整体淡出 ── */
+        .boot-fade-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+        .boot-fade-group.fade-out {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+
+        .b-scanlines {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
+            transition: opacity 0.8s ease;
+        }
+        .b-scanlines.fade-out { opacity: 0; }
+
+        /* ── 浮动徽标 ── */
+        #floating-emblem {
+            position: fixed;
+            z-index: 8000;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, calc(-50% - 45px));
+            pointer-events: none;
+            transition: transform 1s ease 0.05s, opacity 0.45s ease;
+        }
+        /* 中央航天器图案最后单独上升 */
+        #floating-emblem.emblem-rise {
+            transform: translate(-50%, calc(-50% - 160px));
+        }
+        /* 上升结束后淡出 */
+        #floating-emblem.emblem-gone {
+            opacity: 0;
+        }
+
+        /* ── 优化后的徽标立体感 ── */
+        .b-emblem {
+            width: 108px;
+            height: 108px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            /* 增加3D透视与组合动画 */
+            perspective: 1200px;
+            transform-style: preserve-3d;
+            animation: emblem3d 7s ease-in-out infinite;
+        }
+
+        /* 外围图案层：圆环、轨道（启动时随背景一起淡出） */
+        .b-emblem-periph {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid #b89438;
+            border-radius: 50%;
+            animation: bpulse 3s ease-in-out infinite;
+            transition: opacity 1.2s ease 0.3s;
+        }
+        .b-emblem-periph::before {
+            content: '';
+            position: absolute;
+            inset: 9px;
+            border: 1px solid rgba(184,148,56,0.38);
+            border-radius: 50%;
+        }
+        .b-emblem.periph-gone .b-emblem-periph { opacity: 0; }
+
+        /* 中央航天器图案层：最后单独上升 */
+        .b-emblem-core {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        /* 阴影脉冲保持不变 */
+        @keyframes bpulse {
+            0%,100% { box-shadow: 0 0 18px rgba(184,148,56,0.45); }
+            50%      { box-shadow: 0 0 36px rgba(184,148,56,0.7); }
+        }
+        /* 新增立体浮动动画 */
+        @keyframes emblem3d {
+            0% { transform: rotateX(-8deg) rotateY(-12deg) scale(1); }
+            50% { transform: rotateX(8deg) rotateY(12deg) scale(1.02); }
+            100% { transform: rotateX(-8deg) rotateY(-12deg) scale(1); }
+        }
+
+        .b-emblem svg { width: 52px; height: 52px; }
+
+        /* 徽标动画 - 轨道旋转优化（仅外围图案层） */
+        #floating-emblem .b-emblem-periph svg ellipse {
+            transform-origin: 40px 40px;
+        }
+        #floating-emblem .b-emblem-periph svg ellipse:nth-of-type(1) {
+            animation: orbitSpin 8s linear infinite;
+        }
+        #floating-emblem .b-emblem-periph svg ellipse:nth-of-type(2) {
+            animation: orbitSpinRev 14s linear infinite;
+        }
+        #floating-emblem .b-emblem-periph svg circle.dash-circle {
+            animation: spinDash 6s linear infinite;
+            transform-origin: 40px 40px;
+        }
+
+        @keyframes orbitSpin    { 0% { transform: rotate(-22deg); } 100% { transform: rotate(338deg); } }
+        @keyframes orbitSpinRev { 0% { transform: rotate(38deg);  } 100% { transform: rotate(-322deg); } }
+        @keyframes spinDash     { 0% { transform: rotate(0deg);   } 100% { transform: rotate(360deg); } }
+
+        /* 徽标动画 - 移除中心的呼吸效果（仅中央航天器图案层） */
+        #floating-emblem .b-emblem-core svg rect {
+            animation: none !important;
+            fill-opacity: 0.85 !important;
+        }
+        #floating-emblem .b-emblem-core svg rect:nth-of-type(2),
+        #floating-emblem .b-emblem-core svg rect:nth-of-type(3) {
+            animation-delay: 0s !important;
+        }
+
+        /* ── 标题（可单独调节） ── */
+        .b-titles {
+            text-align: center;
+            /* 【位置调节】在这里调整标题组的上下位置 */
+            margin-top: -180px; 
+            margin-bottom: 180px;
+        }
+        .b-t1 {
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 300;
+            font-size: clamp(14px, 3.5vw, 20px);
+            color: #b89438;
+            letter-spacing: 0.5em;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .b-t2 { font-size: 9px; color: #7a6e5e; letter-spacing: 0.32em; display: block; margin-bottom: 5px; }
+        .b-t3 { font-size: 8px; color: #7a6e5e; letter-spacing: 0.22em; display: block; opacity: 0.6; }
+
+        /* ── 状态文字（可单独调节） ── */
+        .b-status {
+            font-size: 10px;
+            color: #7a6e5e;
+            letter-spacing: 0.25em;
+            min-height: 14px;
+            text-align: center;
+            /* 【位置调节】在这里调整状态文字与按钮的距离 */
+            margin-bottom: 24px; 
+        }
+
+        /* ── 发射按钮（可单独调节） ── */
+        .b-btn {
+            padding: 12px 42px;
+            background: transparent;
+            border: 1px solid #b89438;
+            color: #b89438;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.44em;
+            font-weight: 300;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: color .3s;
+        }
+        .b-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #b89438;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .3s ease;
+            z-index: 0;
+        }
+        .b-btn span { position: relative; z-index: 1; }
+        .b-btn:hover { color: #0d0b08; }
+        .b-btn:hover::after { transform: scaleX(1); }
+        .b-btn:disabled { opacity: 0.35; pointer-events: none; }
+
+        /* ===== 主 UI（保持不变） ===== */
+        #main-ui {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            padding: 8px 12px 6px;
+            box-sizing: border-box;
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.8s ease 0.7s, transform 0.8s ease 0.7s;
+        }
+        #main-ui.active { display: flex; pointer-events: auto; }
+        #main-ui.visible { opacity: 1; transform: translateY(0); }
+
+        /* 顶栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 4px 12px 6px;
+            background: rgba(244,241,234,0.60);
+            backdrop-filter: blur(8px);
+            border-radius: 16px 16px 0 0;
+            border-bottom: 1px solid rgba(200,185,165,0.15);
+            flex-shrink: 0;
+            margin-bottom: 4px;
+        }
+        .top-bar .main-title { font-size: 22px; font-weight: 700; letter-spacing: 1.8px; color: #2b241c; text-transform: uppercase; }
+        .top-bar .sub-title  { font-size: 8px; font-weight: 500; letter-spacing: 2px; color: #8a7b6b; text-transform: uppercase; }
+        .top-bar .clock      { font-size: 18px; font-weight: 500; letter-spacing: 1px; color: #2b241c; }
+
+        .dashboard { flex: 1; display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+
+        .orbit-card {
+            background: rgba(244,241,234,0.70);
+            backdrop-filter: blur(8px);
+            border-radius: 14px;
+            padding: 10px 16px 12px;
+            border: 1px solid rgba(200,185,165,0.20);
+            flex-shrink: 0;
+            box-shadow: 0 2px 12px rgba(60,45,30,0.04);
+        }
+        .orbit-card .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            margin-bottom: 6px;
+        }
+        .orbit-card .card-title { font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: #5a4d3d; }
+        .orbit-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+        .orbit-tab {
+            background: transparent;
+            border: 1px solid rgba(184,148,56,0.35);
+            color: #8a7b6b;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            padding: 3px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: color .25s ease, border-color .25s ease, background .25s ease;
+            text-transform: uppercase;
+        }
+        .orbit-tab:hover { border-color: #b89438; color: #b89438; }
+        .orbit-tab.active { background: #b89438; border-color: #b89438; color: #0d0b08; }
+        .orbit-panel { display: none; }
+        .orbit-panel.active { display: block; }
+        .sc-panel-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .sc-panel-head .sc-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+        .sc-panel-head .sc-name { font-size: 12px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+        .sc-panel-head .sc-tag { font-size: 7px; font-weight: 600; letter-spacing: 1.4px; color: #8a7b6b; text-transform: uppercase; margin-left: auto; }
+        .orbit-speed-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(120,100,80,0.08);
+        }
+        .orbit-speed-label { font-size: 9px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #8a7b6b; }
+        .orbit-speed-ctl { display: flex; gap: 4px; }
+        .speed-btn {
+            background: transparent;
+            border: 1px solid rgba(184,148,56,0.35);
+            color: #8a7b6b;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: color .25s ease, border-color .25s ease, background .25s ease;
+        }
+        .speed-btn:hover { border-color: #b89438; color: #b89438; }
+        .speed-btn.active { background: #b89438; border-color: #b89438; color: #0d0b08; }
+        .orbit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; }
+        .orbit-item { display: flex; align-items: baseline; gap: 6px; padding: 1px 0; }
+        .orbit-item .label { font-size: 9px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #8a7b6b; min-width: 52px; }
+        .orbit-item .value { font-size: 22px; font-weight: 500; color: #1f1913; font-variant-numeric: tabular-nums; line-height: 1.2; }
+        .orbit-item .unit  { font-size: 12px; font-weight: 400; color: #6b5d4e; margin-left: 2px; }
+
+        .scene-wrapper {
+            flex: 0 0 auto;
+            height: 50vh;
+            min-height: 260px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #ece6dc;
+            box-shadow: inset 0 0 0 1px rgba(200,185,165,0.20), 0 4px 20px rgba(60,45,30,0.05);
+            position: relative;
+        }
+        #three-canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+        #three-canvas:active { cursor: grabbing; }
+
+        .label-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 2; }
+        .tracking-label {
+            position: absolute;
+            background: rgba(50,45,40,0.85);
+            backdrop-filter: blur(6px);
+            color: #eae3d8;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            padding: 6px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(200,185,165,0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            text-transform: uppercase;
+            font-family: 'Segoe UI', sans-serif;
+            white-space: nowrap;
+            transform: translate(-50%, -120%);
+        }
+
+        .attitude-panel {
+            background: rgba(244,241,234,0.70);
+            backdrop-filter: blur(8px);
+            border-radius: 14px;
+            padding: 10px 12px 12px;
+            border: 1px solid rgba(200,185,165,0.20);
+            flex-shrink: 0;
+            box-shadow: 0 2px 12px rgba(60,45,30,0.04);
+        }
+        .attitude-panel .panel-title { font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: #5a4d3d; margin-bottom: 6px; }
+        .multi-attitude-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+        .widget-card {
+            background: #f2f2f2;
+            border-radius: 16px;
+            padding: 8px 10px 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100px;
+        }
+        .widget-card.selectable {
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: box-shadow .25s ease, border-color .25s ease, background .25s ease;
+        }
+        /* 悬停：不上跳，只让边缘直接亮起 */
+        .widget-card.selectable:hover:not(.selected) {
+            border-color: var(--sc, #b89438);
+            box-shadow: 0 0 10px var(--sc-glow, rgba(184,148,56,0.30));
+        }
+        /* 选中：呼吸灯效果 */
+        .widget-card.selected {
+            border-color: var(--sc, #b89438);
+            background: #fbf8f1;
+            animation: breathGlow 2s ease-in-out infinite;
+        }
+        @keyframes breathGlow {
+            0%, 100% { box-shadow: 0 0 0 1px var(--sc, #b89438), 0 0 4px var(--sc-glow, rgba(184,148,56,0.08)); }
+            50%      { box-shadow: 0 0 0 1.5px var(--sc, #b89438), 0 0 16px var(--sc-glow, rgba(184,148,56,0.75)), 0 0 38px var(--sc-glow, rgba(184,148,56,0.45)); }
+        }
+        .widget-card.selectable .view-hint {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            font-size: 7px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #b89438;
+            opacity: 0;
+            transition: opacity .25s ease;
+            pointer-events: none;
+        }
+        .widget-card.selectable:hover .view-hint,
+        .widget-card.selected .view-hint { opacity: 1; }
+        .widget-card .sc-title { font-size: 12px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
+        .widget-card .data-group { display: flex; flex-direction: column; gap: 2px; }
+        .widget-card .data-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-bottom: 1px solid rgba(0,0,0,0.03); padding: 1px 0; }
+        .widget-card .data-item:last-child { border-bottom: none; }
+        .widget-card .data-label { font-size: 8px; font-weight: 600; text-transform: uppercase; color: #8a7b6b; }
+        .widget-card .data-val   { font-size: 15px; font-weight: 500; color: #1f1913; }
+        .circle-deco {
+            position: absolute;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,200,150,0.20);
+            bottom: -50px; right: -50px;
+            pointer-events: none;
+            z-index: 0;
+            animation: spin 20s linear infinite;
+        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .status-row { grid-column: 1 / -1; display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding-top: 4px; margin-top: 2px; border-top: 1px solid rgba(120,100,80,0.08); }
+        .status-label { font-size: 9px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #8a7b6b; }
+        .status-value { font-size: 17px; font-weight: 600; letter-spacing: 0.6px; color: #4a8c5c; text-transform: uppercase; }
+
+        @media (max-width: 768px) {
+            #main-ui { padding: 6px 6px 4px; }
+            .top-bar { padding: 4px 8px 4px; border-radius: 12px 12px 0 0; }
+            .top-bar .main-title { font-size: 14px; letter-spacing: 1px; }
+            .top-bar .sub-title  { font-size: 6px; }
+            .top-bar .clock      { font-size: 14px; }
+            .orbit-card { padding: 6px 10px 8px; }
+            .orbit-tab { padding: 2px 7px; font-size: 8px; }
+            .orbit-grid { grid-template-columns: 1fr 1fr; gap: 2px 10px; }
+            .orbit-item .value { font-size: 16px; }
+            .orbit-item .label { font-size: 7px; min-width: 36px; }
+            .scene-wrapper { height: 48vh; min-height: 180px; }
+            .multi-attitude-grid { grid-template-columns: 1fr 1fr; gap: 4px; }
+            .widget-card { min-height: 70px; padding: 6px 8px 8px; border-radius: 12px; }
+            .widget-card .data-val { font-size: 12px; }
+            .widget-card .data-label { font-size: 7px; }
+            .circle-deco { width: 110px; height: 110px; bottom: -30px; right: -30px; }
+            .tracking-label { font-size: 7px; padding: 3px 8px; }
+        }
+    
+        #terminal { position: fixed; inset: 0; z-index: 300; overflow: hidden; background: #e8e2d6; }
+  </style>
+  <style id="terminal-polish">
+    /* 终端界面优雅化：与主站统一的奶油网格底、Avant Garde 标题、更柔和的卡片 */
+    #terminal {
+      background-color: #f2ecdf;
+      background-image:
+        linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+      background-size: 96px 96px;
+    }
+    #terminal .top-bar { background: rgba(250, 247, 240, 0.72); backdrop-filter: blur(12px); padding: 6px 16px 8px; }
+    #terminal .top-bar .main-title { font-family: var(--font-display); font-weight: 800; letter-spacing: 0.5px; }
+    #terminal #main-ui { padding: 12px 16px 10px; }
+    #terminal .orbit-card,
+    #terminal .attitude-panel {
+      background: rgba(250, 247, 240, 0.82);
+      border-radius: 18px;
+      border: 1px solid rgba(180, 165, 145, 0.18);
+      box-shadow: 0 12px 34px -22px rgba(60, 45, 30, 0.30);
+    }
+    #terminal .widget-card { border-radius: 16px; background: #f7f4ed; }
+    #terminal .card-title,
+    #terminal .panel-title { letter-spacing: 0.18em; color: #6b5d4e; }
+    #terminal .sc-title { font-family: var(--font-display); font-weight: 700; }
+    /* 启动界面按钮放大 */
+    #terminal .b-btn {
+      padding: 18px 58px;
+      font-size: 16px;
+      letter-spacing: 0.5em;
+    }
+    /* 标签适当放大，缓解拥挤感 */
+    #terminal .card-title { font-size: 12.5px; }
+    #terminal .panel-title { font-size: 12.5px; }
+    #terminal .orbit-item .label { font-size: 11px; }
+    #terminal .orbit-item .value { font-size: 24px; }
+    #terminal .orbit-item .unit  { font-size: 13px; }
+    #terminal .widget-card .data-label { font-size: 11px; }
+    #terminal .widget-card .data-val   { font-size: 17px; }
+    #terminal .sc-title { font-size: 14px; }
+    #terminal .sc-tag { font-size: 9.5px; }
+    #terminal .orbit-tab { font-size: 11px; padding: 4px 12px; }
+    #terminal .speed-btn { font-size: 11px; padding: 4px 12px; }
+    #terminal .orbit-speed-label { font-size: 10px; }
+    #terminal .status-label { font-size: 11px; }
+    #terminal .status-value { font-size: 19px; }
+    #terminal .tracking-label { font-size: 11px; }
+    #terminal .top-bar .sub-title { font-size: 10px; }
+    #terminal .orbit-grid { gap: 10px 30px; }
+    #terminal .multi-attitude-grid { gap: 12px; }
+    #terminal .widget-card { padding: 10px 14px 14px; min-height: 112px; }
+  </style>
+</head>
+<body>
+  <div id="app" class="board">
+
+    <!-- Loading screen -->
+    <section id="loading" class="loading">
+      <div class="loading-inner">
+        <h1 class="word">
+          <span class="word-face">Loading</span>
+          <span class="word-reflection" aria-hidden="true">Loading</span>
+        </h1>
+
+        <div class="progress" aria-label="Loading progress">
+          <div class="progress-track">
+            <div id="bar" class="progress-fill"></div>
+          </div>
+          <span id="percent" class="percent">0%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main screen (scrollable) -->
+    <main id="main" class="main" hidden>
+
+      <!-- 欢迎区：参考图二 WELCOME 欢迎 -->
+      <!-- 隐藏属性由 app.js 加载结束后移除 -->
+      <section class="hero reveal-fade">
+        <h1 class="hero-title">
+          <span class="hero-en">WELCOME</span>
+          <span class="hero-cn">欢迎</span>
+        </h1>
+        <span class="accent-bar" aria-hidden="true"></span>
+      </section>
+
+      <!-- 介绍区：参考图一 关于我 -->
+      <section class="section about reveal-fade">
+        <div class="section-head">
+          <span class="section-icon" aria-hidden="true"></span>
+          <h2 class="section-title">关于我</h2>
+          <span class="accent-bar small" aria-hidden="true"></span>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-text">
+            <p>你好，我是empty610。在校学生，目前就读于中国地质大学。</p>
+            <p>这是我的个人网站，我会在这里持续发布内容，并更新我的作品集与项目。</p>
+            <p>接下来的内容会是一些闲谈。我能接触到游戏《明日方舟》得益于朋友的推荐，通过它，我接触了非常多种的艺术风格，我的作品灵感大部分来自
+                于《明日方舟》，我很感谢鹰角网络产出了这样一款游戏。</p>
+            <p>我还想在这里说一说《少女前线》这款游戏，我很感谢它给我带来的乐趣，它和《明日方舟：终末地》一样，
+                构成了我游戏娱乐的大部分，并深刻地影响了我。
+                接着，请允许我向你推荐漫画《少女的终末旅行》。</p>
+            <p>最后，感谢你阅读我的网站。
+            </p>
+        </div>
+          <figure class="about-photo">
+            <img class="photo" src="avatar.jpg" alt="我的照片" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- 第三面：lo-fi 底片背景 -->
+      <section class="section-3 reveal-fade">
+        <div class="section-3-content">
+          <div class="deloc">
+            <span class="deloc-line">DELOCALIZED</span>
+            <span class="deloc-line">CONFIGURATION</span>
+          </div>
+          <p class="deloc-sub">A DISTRIBUTED SPACE INFRASTRUCTURE INITIATIVE</p>
+          <button type="button" class="enter-btn" id="go-terminal">
+            <span class="btn-text">GO TERMINAL</span>
+            <span class="btn-arrow" aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 第四面 -->
+      <section class="section future reveal-fade">
+        <h2 class="future-title">未来呢？</h2>
+        <p class="future-sub">这里暂时没有更多的内容。</p>
+        <p class="future-body">或许我会在不久之后实装一些项目在这，这会包括一个能帮助你了解太阳系的
+            模型，你可以从这里了解到人类对太阳系各大行星的探索程度与主要的科研成果
+            ，但至少现在，这里还什么都没有。</p>
+      </section>
+
+      <!-- 联系区 -->
+      <section class="section contact reveal">
+        <div class="section-head">
+          <span class="section-icon" aria-hidden="true"></span>
+          <h2 class="section-title">联系</h2>
+          <span class="accent-bar small" aria-hidden="true"></span>
+        </div>
+        <div class="contact-row">
+          <a class="contact-circle" href="https://space.bilibili.com/568389216" target="_blank" rel="noopener" aria-label="Bilibili 空间" title="Bilibili">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M17.8 6.2l2.3-2.3-1.5-1.5-2.6 2.6H8L5.4 2.4 3.9 3.9l2.3 2.3C4.5 6.8 3.3 8.6 3.3 10.6v4.9c0 2.4 1.9 4.3 4.3 4.3h8.8c2.4 0 4.3-1.9 4.3-4.3v-4.9c0-2-1.2-3.8-2.9-4.4zM8.6 17.1h-1v-3.6h1v3.6zm7.8 0h-1v-3.6h1v3.6z"/>
+            </svg>
+          </a>
+          <a class="contact-circle" href="mailto:jackmorgan0610@gmail.com" aria-label="邮箱" title="邮箱">
+            <span class="glyph">@</span>
+          </a>
+          <a class="contact-circle" href="#" data-pending aria-label="更多链接（待补充）" title="更多">
+            <span class="glyph">⋯</span>
+          </a>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- 背景音乐（循环；跨页面按进度继续） -->
+  <div id="terminal" class="terminal-overlay" hidden>
+    <button id="terminal-close" class="terminal-close" type="button" aria-label="返回主站" title="返回">× 返回</button>
+
+    <!-- 全局背景过渡层 -->
+    <div id="bg-transition"></div>
+
+    <!-- ===== 启动界面 ===== -->
+    <div id="boot">
+        <div class="b-scanlines" id="bScanlines"></div>
+
+        <!-- 拆分的文字组容器 -->
+        <div class="boot-fade-group" id="bootFadeGroup">
+            <!-- 徽标占位（用于布局） -->
+            <div style="width:108px;height:108px;visibility:hidden;flex-shrink:0;"></div>
+
+            <!-- 标题（独立控制） -->
+            <div class="b-titles">
+                <span class="b-t1">DC INS</span>
+                <span class="b-t2">HYBRID NAVIGATION SYSTEM</span>
+                <span class="b-t3">EMPTINESS EXPLORATION PROJECT · DELOCALIZED CONFIGURATION</span>
+            </div>
+
+            <!-- 状态文字（独立控制） -->
+            <div class="b-status" id="boot-status">AWAITING OPERATOR INPUT</div>
+
+            <!-- 按钮（独立控制） -->
+            <div class="b-btn-container">
+                <button class="b-btn" id="init-btn"><span>INITIATE SYSTEM</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 浮动徽标（优化立体感） ===== -->
+    <div id="floating-emblem">
+        <div class="b-emblem">
+            <!-- 外围图案：圆环与轨道（启动时和背景一起消失） -->
+            <div class="b-emblem-periph">
+                <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <!-- 金属质感渐变 -->
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f5d98a" />
+                            <stop offset="50%" stop-color="#b89438" />
+                            <stop offset="100%" stop-color="#7a5c1f" />
+                        </linearGradient>
+                        <!-- 立体发光滤镜 -->
+                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="1.5" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+
+                    <!-- 基础深色圆环 -->
+                    <circle cx="40" cy="40" r="25" stroke="url(#goldGrad)" stroke-width="1.2" opacity="0.6" />
+
+                    <!-- 渐变虚线旋转圆环（增加环绕动感） -->
+                    <circle cx="40" cy="40" r="33" stroke="url(#goldGrad)" stroke-width="1" stroke-dasharray="2 5" fill="none" opacity="0.4" class="dash-circle" />
+
+                    <!-- 立体椭圆轨道（施加发光滤镜与金属渐变） -->
+                    <ellipse cx="40" cy="40" rx="35" ry="10.5" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.6" filter="url(#glow)" transform="rotate(-22 40 40)"/>
+                    <ellipse cx="40" cy="40" rx="35" ry="10.5" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.6" filter="url(#glow)" transform="rotate(38 40 40)"/>
+                </svg>
+            </div>
+
+            <!-- 中央航天器图案：动画最后单独上升 -->
+            <div class="b-emblem-core">
+                <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 中心十字/色块（移除呼吸效果，保持固定不透明度） -->
+                    <rect x="37" y="23" width="7" height="16" rx="3.5" fill="#b89438" opacity="0.85"/>
+                    <rect x="25" y="29" width="30" height="4.5" rx="2" fill="#b89438" opacity="0.6"/>
+                    <rect x="37.5" y="39" width="5.5" height="6" rx="1" fill="#b89438" opacity="0.5"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 主 UI ===== -->
+    <div id="main-ui">
+        <div class="top-bar">
+            <div class="title-group">
+                <div class="main-title">DELOCALIZED CONFIGURATION</div>
+                <div class="sub-title">Emptiness Exploration Project: Navigation System</div>
+            </div>
+            <div class="clock" id="clockDisplay">15:20:29</div>
+        </div>
+
+        <div class="dashboard">
+            <div class="orbit-card">
+                <div class="card-head">
+                    <div class="card-title" id="orbitTitle">Orbital Parameters</div>
+                    <div class="orbit-tabs" id="orbitTabs">
+                        <button type="button" class="orbit-tab active" data-target="global">Orbital</button>
+                        <button type="button" class="orbit-tab" data-target="D1">D1</button>
+                        <button type="button" class="orbit-tab" data-target="D2">D2</button>
+                        <button type="button" class="orbit-tab" data-target="DR1">DR1</button>
+                        <button type="button" class="orbit-tab" data-target="DWS1">DWS1</button>
+                    </div>
+                </div>
+
+                <div class="orbit-panels" id="orbitPanels">
+                    <!-- 全局轨道参数 -->
+                    <div class="orbit-panel active" data-panel="global">
+                        <div class="orbit-grid">
+                            <div class="orbit-item">
+                                <span class="label">Altitude</span>
+                                <span class="value" id="altitudeVal">400.0</span>
+                                <span class="unit">km</span>
+                            </div>
+                            <div class="orbit-item">
+                                <span class="label">Velocity</span>
+                                <span class="value" id="velocityVal">7.66</span>
+                                <span class="unit">km/s</span>
+                            </div>
+                            <div class="orbit-item">
+                                <span class="label">Inclination</span>
+                                <span class="value" id="inclinationVal">51.6</span>
+                                <span class="unit">°</span>
+                            </div>
+                            <div class="orbit-item">
+                                <span class="label">Apoapsis</span>
+                                <span class="value" id="apoapsisVal">418.1</span>
+                                <span class="unit">km</span>
+                            </div>
+                        </div>
+                        <div class="orbit-speed-row">
+                            <span class="orbit-speed-label">Rotation Speed</span>
+                            <div class="orbit-speed-ctl" id="speedCtl">
+                                <button type="button" class="speed-btn active" data-speed="1">1x</button>
+                                <button type="button" class="speed-btn" data-speed="0.5">0.5x</button>
+                                <button type="button" class="speed-btn" data-speed="0.25">0.25x</button>
+                                <button type="button" class="speed-btn" data-speed="0.1">0.1x</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 各航天器专属参数面板（由 JS 生成） -->
+                </div>
+            </div>
+
+            <div class="scene-wrapper" id="sceneWrapper">
+                <div id="three-canvas"></div>
+                <div class="label-container" id="labelContainer"></div>
+            </div>
+
+            <div class="attitude-panel">
+                <div class="panel-title">Attitude Control (Multi-Vehicle)</div>
+                <div class="multi-attitude-grid">
+                    <div class="widget-card selectable" data-sc="D1" style="--sc:#d4a84b;--sc-glow:rgba(212,168,75,0.30);">
+                        <div class="circle-deco"></div>
+                        <div>
+                            <div class="sc-title" style="color:#d4a84b;">D1</div>
+                            <div class="data-group">
+                                <div class="data-item"><span class="data-label">Pitch</span><span class="data-val" id="pitchVal1">11.7°</span></div>
+                                <div class="data-item"><span class="data-label">Roll</span><span class="data-val" id="rollVal1">−3.7°</span></div>
+                                <div class="data-item"><span class="data-label">Yaw</span><span class="data-val" id="yawVal1">144.2°</span></div>
+                            </div>
+                        </div>
+                        <span class="view-hint">View</span>
+                    </div>
+                    <div class="widget-card selectable" data-sc="D2" style="--sc:#6ba7d4;--sc-glow:rgba(107,167,212,0.30);">
+                        <div class="circle-deco"></div>
+                        <div>
+                            <div class="sc-title" style="color:#6ba7d4;">D2</div>
+                            <div class="data-group">
+                                <div class="data-item"><span class="data-label">Pitch</span><span class="data-val" id="pitchVal2">9.8°</span></div>
+                                <div class="data-item"><span class="data-label">Roll</span><span class="data-val" id="rollVal2">−1.2°</span></div>
+                                <div class="data-item"><span class="data-label">Yaw</span><span class="data-val" id="yawVal2">210.5°</span></div>
+                            </div>
+                        </div>
+                        <span class="view-hint">View</span>
+                    </div>
+                    <div class="widget-card selectable" data-sc="DR1" style="--sc:#7ccf8c;--sc-glow:rgba(124,207,140,0.30);">
+                        <div class="circle-deco"></div>
+                        <div>
+                            <div class="sc-title" style="color:#7ccf8c;">DR1</div>
+                            <div class="data-group">
+                                <div class="data-item"><span class="data-label">Pitch</span><span class="data-val" id="pitchVal3">6.5°</span></div>
+                                <div class="data-item"><span class="data-label">Roll</span><span class="data-val" id="rollVal3">4.8°</span></div>
+                                <div class="data-item"><span class="data-label">Yaw</span><span class="data-val" id="yawVal3">87.3°</span></div>
+                            </div>
+                        </div>
+                        <span class="view-hint">View</span>
+                    </div>
+                    <div class="widget-card selectable" data-sc="DWS1" style="--sc:#cf88b0;--sc-glow:rgba(207,136,176,0.30);">
+                        <div class="circle-deco"></div>
+                        <div>
+                            <div class="sc-title" style="color:#cf88b0;">DWS1</div>
+                            <div class="data-group">
+                                <div class="data-item"><span class="data-label">Pitch</span><span class="data-val" id="pitchVal4">5.2°</span></div>
+                                <div class="data-item"><span class="data-label">Roll</span><span class="data-val" id="rollVal4">2.1°</span></div>
+                                <div class="data-item"><span class="data-label">Yaw</span><span class="data-val" id="yawVal4">315.8°</span></div>
+                            </div>
+                        </div>
+                        <span class="view-hint">View</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Status</span>
+                        <span class="status-value" id="statusVal">Nominal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+  </div>
+
+  <audio id="bg-music" src="ad astra.mp3" loop preload="auto" style="display:none"></audio>
+
+  <!-- 音乐播放/暂停小按钮 -->
+  <button id="music-toggle" class="music-toggle" type="button" aria-label="播放或暂停音乐" title="音乐">
+    <span aria-hidden="true">♪</span>
+  </button>
+
+  <script src="app.js"></script>
+<script type="module">
+
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const container     = document.getElementById('three-canvas');
+        const wrapper       = document.getElementById('sceneWrapper');
+        const labelContainer= document.getElementById('labelContainer');
+        const mainUI        = document.getElementById('main-ui');
+        const audio         = document.getElementById('bg-music');
+        const musicToggle   = null; // 音乐由主页全局控件统一控制
+        const M_PLAYING     = 'site.music.playing';
+        const M_TIME        = 'site.music.time';
+
+        // 背景音乐：ad astra，循环；跨页面按上次进度继续（静音自动播放 + 首次交互解除静音）
+        function saveMusicState() {
+            try {
+                localStorage.setItem(M_PLAYING, audio.paused ? '0' : '1');
+                localStorage.setItem(M_TIME, String(audio.currentTime));
+            } catch (e) {}
+        }
+        function setMusicIcon() {
+            document.documentElement.classList.toggle('music-playing', !audio.paused);
+        }
+        if (musicToggle) {
+            musicToggle.addEventListener('click', () => {
+                if (audio.paused) {
+                    audio.muted = false;
+                    audio.volume = 0.4;
+                    audio.play().catch(() => {});
+                } else {
+                    audio.pause();
+                }
+                setMusicIcon();
+                saveMusicState();
+            });
+            audio.addEventListener('play', setMusicIcon);
+            audio.addEventListener('pause', setMusicIcon);
+            try {
+                if (localStorage.getItem(M_PLAYING) === '1') {
+                    const t = parseFloat(localStorage.getItem(M_TIME)) || 0;
+                    if (t > 0) audio.currentTime = t;
+                    audio.muted = true;
+                    audio.play().catch(() => {});
+                    document.documentElement.classList.add('music-playing');
+                    const unmute = () => {
+                        audio.muted = false;
+                        document.removeEventListener('pointerdown', unmute);
+                        document.removeEventListener('click', unmute);
+                    };
+                    document.addEventListener('pointerdown', unmute);
+                    document.addEventListener('click', unmute);
+                }
+            } catch (e) {}
+            setInterval(saveMusicState, 2000);
+        }
+        const bootScreen    = document.getElementById('boot');
+        const initBtn       = document.getElementById('init-btn');
+        const statusEl      = document.getElementById('boot-status');
+        const bgTransition  = document.getElementById('bg-transition');
+        const floatingEmblem= document.getElementById('floating-emblem');
+        const bootFadeGroup = document.getElementById('bootFadeGroup');
+        const bScanlines    = document.getElementById('bScanlines');
+        const bEmblem       = document.querySelector('.b-emblem');
+        const orbitTitle    = document.getElementById('orbitTitle');
+        const orbitPanels   = document.getElementById('orbitPanels');
+        const orbitTabBtns  = Array.from(document.querySelectorAll('.orbit-tab'));
+        const vehicleCards  = Array.from(document.querySelectorAll('.widget-card.selectable'));
+
+        /* ===== 轨道参数显示标签切换 ===== */
+        let onLockVehicle = null;   // 由 3D 场景注册：锁定视角跟随某航天器
+        let onUnlockVehicle = null; // 由 3D 场景注册：解除视角锁定
+
+        function switchOrbitPanel(target) {
+            orbitTabBtns.forEach(t => t.classList.toggle('active', t.dataset.target === target));
+            orbitPanels.querySelectorAll('.orbit-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === target));
+            vehicleCards.forEach(c => c.classList.toggle('selected', c.dataset.sc === target));
+            orbitTitle.textContent = target === 'global' ? 'Orbital Parameters' : `Orbital Parameters · ${target}`;
+            if (target === 'global') {
+                if (onUnlockVehicle) onUnlockVehicle();
+            } else if (onLockVehicle) {
+                onLockVehicle(target);
+            }
+        }
+
+        orbitTabBtns.forEach(btn => btn.addEventListener('click', () => switchOrbitPanel(btn.dataset.target)));
+        vehicleCards.forEach(card => card.addEventListener('click', () => switchOrbitPanel(card.dataset.sc)));
+
+        /* ===== 运转速度控制（1x / 0.5x / 0.25x / 0.1x） ===== */
+        const speedBtns = Array.from(document.querySelectorAll('.speed-btn'));
+        let orbitSpeed = 1;
+        let onOrbitSpeedChange = null; // 由 3D 场景注册：速度档位变化时刷新角速度/周期显示
+        speedBtns.forEach(btn => btn.addEventListener('click', () => {
+            orbitSpeed = parseFloat(btn.dataset.speed);
+            speedBtns.forEach(b => b.classList.toggle('active', b === btn));
+            if (onOrbitSpeedChange) onOrbitSpeedChange();
+        }));
+
+        /* ========================================================
+           修改 SUBTITLE_INTER 的值来调节字幕的(毫秒)
+           ======================================================== */
+        const SUBTITLE_INTERVAL = 250;
+
+        const MSGS = [
+            'INITIALIZING INS CORE…',
+            'LOADING ORBITAL DATABASE…',
+            'CALIBRATING GYROSCOPES…',
+            'ESTABLISHING TELEMETRY LINK…',
+            'ACQUIRING ГЛОНАСС SIGNAL…',
+            'ALL SYSTEMS NOMINAL, ALL ENGINE RUNNING…',
+            'A NEW AGE IS UPON US!.'
+        ];
+
+        function boot() {
+            initBtn.disabled = true;
+            audio.volume = 0.4;
+            audio.muted = false;
+            audio.play().catch(() => {});
+
+            let i = 0;
+            const iv = setInterval(() => {
+                statusEl.textContent = MSGS[i++];
+                if (i >= MSGS.length) {
+                    clearInterval(iv);
+                    setTimeout(() => {
+                        startTransition();
+                    }, 400);
+                }
+            }, SUBTITLE_INTERVAL); // 使用变量控制速度
+        }
+
+        function startTransition() {
+            // 淡出其余内容（标题、状态、按钮）
+            bootFadeGroup.classList.add('fade-out');
+            bScanlines.classList.add('fade-out');
+
+            // 背景色过渡
+            bgTransition.classList.add('to-light');
+
+            // 外围图案与背景同步淡出
+            bEmblem.classList.add('periph-gone');
+
+            // 等外围图案与背景淡出完成后，中央航天器图案最后单独上升
+            setTimeout(() => {
+                floatingEmblem.classList.add('emblem-rise');
+            }, 1500);
+
+            // 上升结束后淡出，同时主 UI 开始淡入（不再提前进场）
+            setTimeout(() => {
+                floatingEmblem.classList.add('emblem-gone');
+                mainUI.classList.add('active');
+                mainUI.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        mainUI.classList.add('visible');
+                    });
+                });
+                startApp();
+            }, 2600);
+
+            // 清理
+            setTimeout(() => {
+                bootScreen.style.display = 'none';
+                floatingEmblem.style.display = 'none';
+                bgTransition.style.display = 'none';
+            }, 3500);
+        }
+
+        initBtn.addEventListener('click', boot);
+        document.addEventListener('click', () => {
+            if (audio.paused && !audio.muted && mainUI.classList.contains('active')) {
+                audio.play().catch(() => {});
+            }
+        });
+
+        // ---------- 3D 场景（保持不变） ----------
+        function startApp() {
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color('#ece6dc');
+
+            const isMobile = window.innerWidth < 768;
+            const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(isMobile ? 3.5 : 4.2, isMobile ? 1.8 : 2.8, isMobile ? 5.2 : 5.6);
+            camera.lookAt(0, 0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.1;
+            container.appendChild(renderer.domElement);
+
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 1.6;
+            controls.minDistance = 0.5;
+            controls.maxDistance = 35;
+            controls.target.set(0, 0, 0);
+            controls.update();
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+            const sun = new THREE.DirectionalLight(0xffeedd, 2.2);
+            sun.position.set(8, 6, 5);
+            scene.add(sun);
+            const fill = new THREE.DirectionalLight(0xccddff, 0.6);
+            fill.position.set(-4, -2, -6);
+            scene.add(fill);
+            const rim = new THREE.DirectionalLight(0xffeeee, 0.7);
+            rim.position.set(-3, 5, -4);
+            scene.add(rim);
+
+            const earthGroup = new THREE.Group();
+            scene.add(earthGroup);
+            const radius = 1.25;
+            const tex = new THREE.TextureLoader().load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+            const earth = new THREE.Mesh(
+                new THREE.SphereGeometry(radius, 64, 64),
+                new THREE.MeshStandardMaterial({ map: tex, roughness: 0.45, metalness: 0.08 })
+            );
+            earthGroup.add(earth);
+            earthGroup.add(new THREE.Mesh(
+                new THREE.SphereGeometry(radius * 1.015, 48, 48),
+                new THREE.MeshBasicMaterial({ color: 0x8a9bb5, transparent: true, opacity: 0.09, side: THREE.BackSide })
+            ));
+            // 地球自转（受 Rotation Speed 档位控制；单位：1x 时每秒自转弧度）
+            const EARTH_SPIN = 0.15;
+
+            function createOrbitLine(a, b, inclDeg, color, opacity = 0.5) {
+                const g = new THREE.Group();
+                g.rotation.x = THREE.MathUtils.degToRad(inclDeg);
+                const pts = [];
+                for (let i = 0; i <= 120; i++) {
+                    const t = (i / 120) * Math.PI * 2;
+                    pts.push(a * Math.cos(t), 0, b * Math.sin(t));
+                }
+                const geom = new THREE.BufferGeometry();
+                geom.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+                g.add(new THREE.Line(geom, new THREE.LineBasicMaterial({ color, transparent: true, opacity })));
+                return g;
+            }
+
+            const orbitParams = [
+                { a: 3.35, b: 2.15, inclination: 1.6,  color: 0xd4a84b },
+                { a: 1.5,  b: 1.5,  inclination: 43.0, color: 0x6ba7d4 },
+                { a: 1.9,  b: 1.7,  inclination: 69.0, color: 0x7ccf8c },
+                { a: 2.6,  b: 2.4,  inclination: 28.0, color: 0xcf88b0 }
+            ];
+
+            const orbitGroups = [];
+            orbitParams.forEach((p, i) => {
+                const mainOrbit = createOrbitLine(p.a, p.b, p.inclination, p.color, 0.50);
+                scene.add(mainOrbit);
+                if (i === 0) {
+                    scene.add(createOrbitLine(p.a * 0.97, p.b * 0.97, p.inclination, p.color, 0.15));
+                    scene.add(createOrbitLine(p.a * 1.04, p.b * 1.04, p.inclination, p.color, 0.12));
+                }
+                orbitGroups.push(mainOrbit);
+            });
+
+            function createMarker(color, emissive) {
+                const g = new THREE.Group();
+                g.add(new THREE.Mesh(new THREE.SphereGeometry(0.075, 16, 16), new THREE.MeshStandardMaterial({ color, emissive, emissiveIntensity: 0.35, roughness: 0.2, metalness: 0.7 })));
+                g.add(new THREE.Mesh(new THREE.SphereGeometry(0.105, 12, 12), new THREE.MeshBasicMaterial({ color: emissive, transparent: true, opacity: 0.20 })));
+                return g;
+            }
+
+            const spacecrafts = [];
+            const angles = [0, 1.2, 2.5, 3.8];
+            const speeds  = [0.006, 0.05, 0.02, 0.009];
+            const colors  = [
+                { c: 0xffd866, e: 0xffaa44 },
+                { c: 0x88ddff, e: 0x4488cc },
+                { c: 0x88ff99, e: 0x44cc55 },
+                { c: 0xff88cc, e: 0xcc4488 }
+            ];
+            const clickableMeshes = [];
+            orbitParams.forEach((p, i) => {
+                const mg = new THREE.Group();
+                orbitGroups[i].add(mg);
+                const name = ['D1','D2','DR1','DWS1'][i];
+                const marker = createMarker(colors[i].c, colors[i].e);
+                marker.traverse((obj) => {
+                    if (obj.isMesh) {
+                        obj.userData.scName = name;
+                        clickableMeshes.push(obj);
+                    }
+                });
+                mg.add(marker);
+                spacecrafts.push({ group: mg, params: p, angle: angles[i], omega: speeds[i] * 60, name }); // omega：角速度 rad/s（1x）
+            });
+
+            // 为每个航天器生成专属参数面板（角速度、周期、倾角、半长轴、实时相位角）
+            const scColors = { D1:'#d4a84b', D2:'#6ba7d4', DR1:'#7ccf8c', DWS1:'#cf88b0' };
+            spacecrafts.forEach((sc) => {
+                const omega = sc.omega; // rad/s（真实角速度）
+                const panel = document.createElement('div');
+                panel.className = 'orbit-panel';
+                panel.dataset.panel = sc.name;
+                panel.innerHTML = `
+                    <div class="sc-panel-head">
+                        <span class="sc-dot" style="color:${scColors[sc.name]};background:${scColors[sc.name]};"></span>
+                        <span class="sc-name" style="color:${scColors[sc.name]};">${sc.name}</span>
+                        <span class="sc-tag">Tracking · Nominal</span>
+                    </div>
+                    <div class="orbit-grid">
+                        <div class="orbit-item">
+                            <span class="label">Angular Velocity</span>
+                            <span class="value" id="omegaDeg-${sc.name}">${(omega * 180 / Math.PI).toFixed(1)}</span>
+                            <span class="unit">°/s</span>
+                        </div>
+                        <div class="orbit-item">
+                            <span class="label">Angular Velocity</span>
+                            <span class="value" id="omegaRad-${sc.name}">${omega.toFixed(2)}</span>
+                            <span class="unit">rad/s</span>
+                        </div>
+                        <div class="orbit-item">
+                            <span class="label">Orbital Period</span>
+                            <span class="value" id="period-${sc.name}">${(2 * Math.PI / omega).toFixed(2)}</span>
+                            <span class="unit">s</span>
+                        </div>
+                        <div class="orbit-item">
+                            <span class="label">Inclination</span>
+                            <span class="value">${sc.params.inclination.toFixed(1)}</span>
+                            <span class="unit">°</span>
+                        </div>
+                        <div class="orbit-item">
+                            <span class="label">Semi-Major Axis</span>
+                            <span class="value">${sc.params.a.toFixed(2)}</span>
+                            <span class="unit"></span>
+                        </div>
+                        <div class="orbit-item">
+                            <span class="label">Phase Angle</span>
+                            <span class="value" id="phase-${sc.name}">0.0</span>
+                            <span class="unit">°</span>
+                        </div>
+                    </div>`;
+                orbitPanels.appendChild(panel);
+                sc.angleEl = panel.querySelector(`#phase-${sc.name}`);
+                sc.omegaDegEl = panel.querySelector(`#omegaDeg-${sc.name}`);
+                sc.omegaRadEl = panel.querySelector(`#omegaRad-${sc.name}`);
+                sc.periodEl  = panel.querySelector(`#period-${sc.name}`);
+            });
+
+            // 速度档位变化时，按当前实际角速度刷新各面板显示
+            onOrbitSpeedChange = () => {
+                spacecrafts.forEach((sc) => {
+                    const w = sc.omega * orbitSpeed;
+                    sc.omegaDegEl.textContent = (w * 180 / Math.PI).toFixed(1);
+                    sc.omegaRadEl.textContent = w.toFixed(2);
+                    sc.periodEl.textContent = (2 * Math.PI / w).toFixed(2);
+                });
+            };
+
+            scene.add(new THREE.Points(
+                new THREE.BufferGeometry().setFromPoints(Array.from({ length: 320 }, () => {
+                    const r = 20 + Math.random() * 50;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    return new THREE.Vector3(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
+                })),
+                new THREE.PointsMaterial({ color: 0x8a9bb5, size: 0.035, transparent: true, opacity: 0.35, sizeAttenuation: true })
+            ));
+
+            function createTrackLabel(text, color) {
+                const el = document.createElement('div');
+                el.textContent = text;
+                el.className = 'tracking-label';
+                el.style.color = color;
+                labelContainer.appendChild(el);
+                return el;
+            }
+
+            const trackables = [];
+            spacecrafts.forEach((sc) => {
+                const hex = { D1:'#d4a84b', D2:'#6ba7d4', DR1:'#7ccf8c', DWS1:'#cf88b0' }[sc.name] || '#ffffff';
+                trackables.push({ element: createTrackLabel(sc.name, hex), object: sc.group });
+            });
+
+            const raycaster = new THREE.Raycaster();
+
+            // ---------- 点击 3D 场景中的航天器小球，切换到对应标签 ----------
+            const clickRaycaster = new THREE.Raycaster();
+            const pointer = new THREE.Vector2();
+            let pointerDownPos = null;
+            let lockObj = null; // 当前视角锁定的航天器
+            let lockDir = new THREE.Vector3(0, 0, 1); // 锁定视角方向（相对小球的单位向量）
+            let lockDistance = 2.8;                   // 锁定视角距离
+            let isLockDragging = false;               // 锁定状态下是否正在拖拽
+            let lastPointer = { x: 0, y: 0 };         // 拖拽上一次指针位置
+
+            // 注册视角锁定/解锁：以小球为静止系，相机刚性绑定小球
+            onLockVehicle = (name) => {
+                const sc = spacecrafts.find(s => s.name === name);
+                if (sc) {
+                    if (!lockObj) {
+                        const wp = new THREE.Vector3();
+                        sc.group.updateWorldMatrix(true, false);
+                        sc.group.getWorldPosition(wp);
+                        const viewDir = new THREE.Vector3().copy(camera.position).sub(wp);
+                        if (viewDir.lengthSq() < 0.0001) {
+                            lockDir.set(0, 0, 1);
+                        } else {
+                            lockDir.copy(viewDir).normalize();
+                        }
+                        lockDistance = 2.8;
+                    }
+                    lockObj = sc;
+                    controls.enabled = false;
+                    controls.enableDamping = false;
+                    controls.autoRotate = false;
+                }
+            };
+            onUnlockVehicle = () => {
+                const wasLocked = !!lockObj;
+                lockObj = null;
+                controls.enabled = true;
+                controls.enableDamping = true;
+                controls.autoRotate = true;
+                // 直接解锁在当前位置：保持相机朝向不变，不回正到地球
+                if (wasLocked) {
+                    controls.target.copy(followPos);
+                }
+            };
+
+            function onCanvasPointerDown(e) {
+                pointerDownPos = [e.clientX, e.clientY];
+                if (lockObj) {
+                    isLockDragging = true;
+                    lastPointer.x = e.clientX;
+                    lastPointer.y = e.clientY;
+                    renderer.domElement.style.cursor = 'grabbing';
+                }
+            }
+
+            function onCanvasClick(e) {
+                // 拖动视角时不触发选中
+                if (pointerDownPos && (Math.abs(e.clientX - pointerDownPos[0]) > 5 || Math.abs(e.clientY - pointerDownPos[1]) > 5)) {
+                    return;
+                }
+                const rect = renderer.domElement.getBoundingClientRect();
+                pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+                clickRaycaster.setFromCamera(pointer, camera);
+                const hits = clickRaycaster.intersectObjects(clickableMeshes, false);
+                if (hits.length > 0 && hits[0].object.userData.scName) {
+                    switchOrbitPanel(hits[0].object.userData.scName);
+                } else {
+                    // 点空白处：切回 Orbital 标签并解锁视角，保持界面与视角一致
+                    switchOrbitPanel('global');
+                }
+            }
+
+            function onCanvasPointerMove(e) {
+                const rect = renderer.domElement.getBoundingClientRect();
+                pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+                // 锁定静止系下的拖拽：相机绕小球旋转，小球保持静止
+                if (lockObj && isLockDragging) {
+                    const dx = e.clientX - lastPointer.x;
+                    const dy = e.clientY - lastPointer.y;
+                    lastPointer.x = e.clientX;
+                    lastPointer.y = e.clientY;
+                    rotateLockView(dx, dy);
+                    return;
+                }
+                clickRaycaster.setFromCamera(pointer, camera);
+                const hovered = clickRaycaster.intersectObjects(clickableMeshes, false).length > 0;
+                renderer.domElement.style.cursor = hovered ? 'pointer' : '';
+            }
+
+            // 锁定拖拽结束
+            function endLockDrag() {
+                if (isLockDragging) {
+                    isLockDragging = false;
+                    renderer.domElement.style.cursor = '';
+                }
+            }
+
+            // 绕小球旋转视角方向（水平/垂直）
+            const lockUp = new THREE.Vector3(0, 1, 0);
+            const lockRight = new THREE.Vector3();
+            function rotateLockView(dx, dy) {
+                // 与总览视角（OrbitControls）一致的拖拽灵敏度：2π / 画布高度
+                const h = renderer.domElement.clientHeight || 1;
+                const SENS = (2 * Math.PI) / h;
+                lockRight.crossVectors(lockDir, lockUp);
+                if (lockRight.lengthSq() < 1e-8) lockRight.set(1, 0, 0);
+                lockRight.normalize();
+                lockDir.applyAxisAngle(lockUp, -dx * SENS);
+                lockDir.applyAxisAngle(lockRight, dy * SENS);
+                // 限制垂直角度，避免翻转到背面
+                const maxY = 0.97;
+                if (Math.abs(lockDir.y) > maxY) {
+                    lockDir.y = Math.sign(lockDir.y) * maxY;
+                    const s = Math.sqrt(Math.max(0, 1 - lockDir.y * lockDir.y) / (lockDir.x * lockDir.x + lockDir.z * lockDir.z));
+                    lockDir.x *= s;
+                    lockDir.z *= s;
+                }
+                lockDir.normalize();
+            }
+
+            renderer.domElement.addEventListener('pointerdown', onCanvasPointerDown);
+            renderer.domElement.addEventListener('click', onCanvasClick);
+            renderer.domElement.addEventListener('pointermove', onCanvasPointerMove);
+            renderer.domElement.addEventListener('pointerup', endLockDrag);
+            renderer.domElement.addEventListener('pointercancel', endLockDrag);
+            // 锁定时滚轮缩放（小球仍保持静止）
+            renderer.domElement.addEventListener('wheel', (e) => {
+                if (!lockObj) return;
+                e.preventDefault();
+                lockDistance = Math.max(1.2, Math.min(8, lockDistance + e.deltaY * 0.004));
+            }, { passive: false });
+
+            function updateLabels() {
+                trackables.forEach((item) => {
+                    const worldPos = new THREE.Vector3();
+                    item.object.getWorldPosition(worldPos);
+                    const direction = new THREE.Vector3().copy(worldPos).sub(camera.position).normalize();
+                    raycaster.set(camera.position, direction);
+                    const intersects = raycaster.intersectObject(earth);
+                    let isBlocked = false;
+                    if (intersects.length > 0) {
+                        if (intersects[0].distance < worldPos.distanceTo(camera.position) - 0.05) isBlocked = true;
+                    }
+                    const vector = worldPos.clone();
+                    vector.project(camera);
+                    if (isBlocked || vector.z > 1) {
+                        item.element.style.display = 'none';
+                    } else {
+                        item.element.style.display = 'block';
+                        const x = (vector.x * 0.5 + 0.5) * container.clientWidth;
+                        const y = (-vector.y * 0.5 + 0.5) * container.clientHeight;
+                        item.element.style.transform = `translate(-50%, -120%) translate(${x}px, ${y}px)`;
+                    }
+                });
+            }
+
+            const dom = {
+                altitude: document.getElementById('altitudeVal'),
+                velocity: document.getElementById('velocityVal'),
+                clock:    document.getElementById('clockDisplay'),
+            };
+
+            const followPos = new THREE.Vector3();
+            let lastFrameTime = performance.now();
+            function animate(now) {
+                requestAnimationFrame(animate);
+                // 按真实时间差驱动运动，帧率（60/120/144Hz）不再影响速度
+                const delta = Math.min(Math.max((now - lastFrameTime) / 1000, 0), 0.1);
+                lastFrameTime = now;
+                spacecrafts.forEach((sc) => {
+                    sc.angle += sc.omega * orbitSpeed * delta;
+                    sc.group.position.set(sc.params.a * Math.cos(sc.angle), 0, sc.params.b * Math.sin(sc.angle));
+                    if (sc.angleEl) {
+                        sc.angleEl.textContent = ((sc.angle * 180 / Math.PI) % 360).toFixed(1);
+                    }
+                });
+                // 运转速度同时作用于地球自转与相机自动旋转
+                earthGroup.rotation.y += EARTH_SPIN * orbitSpeed * delta;
+                controls.autoRotateSpeed = 1.6 * orbitSpeed;
+                // 追踪视角：以小球为静止系（相机绑定小球，地球与轨道围绕小球运动）
+                if (lockObj) {
+                    lockObj.group.updateWorldMatrix(true, false);
+                    lockObj.group.getWorldPosition(followPos);
+                    camera.position.copy(followPos).addScaledVector(lockDir, lockDistance);
+                    camera.lookAt(followPos);
+                } else {
+                    controls.update();
+                }
+                updateLabels();
+                renderer.render(scene, camera);
+            }
+            animate(performance.now());
+
+            function onResize() {
+                const w = wrapper.clientWidth, h = wrapper.clientHeight;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+            }
+            window.addEventListener('resize', onResize);
+            new ResizeObserver(onResize).observe(wrapper);
+
+            let MET = 15 * 3600 + 20 * 60 + 29;
+            setInterval(() => {
+                MET++;
+                const h = String(Math.floor(MET / 3600)).padStart(2,'0');
+                const m = String(Math.floor((MET % 3600) / 60)).padStart(2,'0');
+                const s = String(MET % 60).padStart(2,'0');
+                dom.clock.textContent = `${h}:${m}:${s}`;
+            }, 1000);
+
+            setInterval(() => {
+                dom.altitude.textContent = (400 + (Math.sin(Date.now()/5000)*0.00025 + 2.5)).toFixed(1);
+                dom.velocity.textContent  = (7.66 + Math.sin(Date.now()/3000)*0.0002).toFixed(3);
+            }, 200);
+        }
+    
+</script>
+</body>
+</html>

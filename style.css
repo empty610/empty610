@@ -1,0 +1,611 @@
+/* 本地的 ITC Avant Garde Gothic Pro 多字重 */
+@font-face {
+  font-family: "Avant Garde";
+  src: url("ITCAvantGardePro-Book.otf") format("opentype");
+  font-weight: 300 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avant Garde";
+  src: url("ITCAvantGardePro-Demi.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avant Garde";
+  src: url("ITCAvantGardePro-Bold.otf") format("opentype");
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 斜体（可选，仅在用到 font-style: italic 时生效） */
+@font-face {
+  font-family: "Avant Garde";
+  src: url("AVGARDDO_2.TTF") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --board: #f5f0e7;              /* warm cream background */
+  --grid: rgba(0, 0, 0, 0.045);  /* subtle grid lines */
+  --ink: #14120e;                /* near-black text */
+  --ink-soft: rgba(20, 18, 14, 0.6);
+  --grid-size: 96px;
+
+  /* 正文：保持原有风格，仍用 Helvetica 系 */
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* 标题：本地 Avant Garde 优先，缺失时回退到几何感较强的 Poppins */
+  --font-display: "Avant Garde", "ITC Avant Garde Gothic Pro", "Avant Garde Gothic",
+          "Poppins", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* 参考图里的低饱和度三色装饰条（青 -> 金 -> 红） */
+  --accent-gradient: linear-gradient(90deg, #6fd3c7 0%, #f2c14e 45%, #d24b45 100%);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--ink);
+  overflow-x: hidden;
+
+  /* 整站背景板：米色 + 网格，固定不随滚动移动 */
+  background-color: var(--board);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-attachment: fixed;
+}
+
+/* 内容容器，铺满可滚动区域 */
+.board { min-height: 100vh; }
+
+/* ---------- Loading screen (fixed overlay) ---------- */
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.loading.is-done {
+  opacity: 0;
+  transform: scale(1.02);
+  pointer-events: none;
+}
+
+.loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.75rem;
+  transform: translateY(4vh);
+}
+
+/* Heavy headline with a soft mirrored reflection */
+.word {
+  margin: 0;
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: clamp(2.75rem, 11vw, 6.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  display: block;
+}
+
+.word-face,
+.word-reflection {
+  display: block;
+  text-align: center;
+}
+
+/* The reflection is a vertical mirror that fades out as it drops away. */
+.word-reflection {
+  margin-top: 0.06em;
+  transform: scaleY(-1);
+  transform-origin: center;
+  opacity: 0.3;
+  filter: blur(1.5px);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.22) 38%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,1) 100%);
+          mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.22) 38%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,1) 100%);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---------- Loading progress ---------- */
+.progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: min(320px, 72vw);
+}
+
+.progress-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--ink);
+  border-radius: 3px;
+  transition: width 0.1s linear;
+}
+
+.percent {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Main screen (scrollable) ---------- */
+.main {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 8vh;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+#app.is-ready .main { opacity: 1; }
+
+/* 音乐播放/暂停小按钮（固定右下角） */
+.music-toggle {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 320;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  background: rgba(20, 18, 14, 0.55);
+  backdrop-filter: blur(6px);
+  color: #e9e5dc;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.15s ease;
+}
+
+.music-toggle:hover {
+  background: rgba(20, 18, 14, 0.75);
+  transform: translateY(-2px);
+}
+
+.music-toggle:active { transform: translateY(0); }
+html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 90, 0.35); }
+
+/* 终端覆盖层右上角的返回按钮 */
+.terminal-close {
+  position: fixed;
+  top: 16px;
+  right: 18px;
+  z-index: 99999;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #2b241c;
+  background: rgba(233, 229, 220, 0.88);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(184, 148, 56, 0.4);
+  padding: 11px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.terminal-close:hover { background: #b89438; color: #0d0b08; border-color: #b89438; }
+
+/* 终端覆盖层出现时的优雅进入（保持不透明，避免浅色底透出；深色启动界面直接呈现出） */
+.terminal-overlay {
+  animation: terminal-in 0.4s ease;
+}
+
+@keyframes terminal-in {
+  from { transform: scale(1.02); }
+  to   { transform: none; }
+}
+
+/* Scroll 渐变动画（约 0.5s）——只有启用 JS 时才先隐藏，避免无 JS 时内容缺失 */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* 第三面：透明度由 JS 随滚动位置连续设置（无过渡，跟随滚动 1:1） */
+.js .reveal-fade {
+  opacity: 0;
+}
+
+/* 三色装饰条 */
+.accent-bar {
+  display: block;
+  height: 6px;
+  width: min(420px, 68vw);
+  border-radius: 999px;
+  background: var(--accent-gradient);
+  margin-top: 1.1rem;
+}
+
+.accent-bar.small {
+  align-self: center;
+  flex: 1;
+  width: auto;
+  min-width: 3rem;
+  height: 4px;
+  margin: 0;
+}
+
+/* ---------- Hero: WELCOME 欢迎 ---------- */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2em;
+  padding: 8vh 5vw;
+  text-align: center;
+}
+
+.hero-title {
+  margin: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 0.18em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.3rem, 9.5vw, 8rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Section: 关于我 ---------- */
+.section {
+  padding: 10vh 6vw;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+
+.section-icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  /* 渐变描边环（借用三色渐变，米色填充内芯） */
+  background:
+    linear-gradient(var(--board), var(--board)) padding-box,
+    var(--accent-gradient) border-box;
+}
+
+.section-title {
+  margin: 0;
+  flex: none;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: clamp(2rem, 6vw, 4rem);
+  align-items: center;
+}
+
+.about-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.about-text p {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 1.06rem;
+  line-height: 1.85;
+  color: var(--ink-soft);
+  text-align: justify;
+}
+
+.about-photo {
+  margin: 0;
+  aspect-ratio: 1;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.25);
+}
+
+.about-photo .photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ---------- 联系区 ---------- */
+.contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.contact-circle {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(184, 148, 56, 0.55);
+  color: #b89438;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  text-decoration: none;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.18s ease, border-color 0.25s ease;
+}
+
+.contact-circle svg { width: 24px; height: 24px; fill: currentColor; }
+.contact-circle .glyph { line-height: 1; }
+
+.contact-circle:hover {
+  background: #b89438;
+  color: #0d0b08;
+  border-color: #b89438;
+  transform: translateY(-3px);
+}
+
+/* ---------- 第四面：未来呢 ---------- */
+.future {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 14vh 6vw 10vh;
+}
+
+.future-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3rem, 12vw, 9rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.future-sub {
+  margin: 1.4rem 0 0;
+  font-family: var(--font);
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+/* ---------- 第三面：lo-fi 底片背景 ---------- */
+.section-3 {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 5vw 18vh; /* 底部留白多，把标题往上带 */
+  text-align: center;
+  background-image: url("backdrop-3.png");
+  background-size: cover;
+  background-position: center;
+  color: #e9e5dc;
+}
+
+/* 中间淡淡的暗色渐晕，让压在彩色条上的文字更清晰 */
+.section-3::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 62% 55% at 50% 48%, rgba(8, 8, 10, 0.42), rgba(8, 8, 10, 0) 76%);
+}
+
+.section-3-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+}
+
+.deloc {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-display); /* Avant Garde */
+  font-weight: 700;
+  font-size: clamp(2.3rem, 10vw, 7.8rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.deloc-sub {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.78rem, 1.6vw, 1.05rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(233, 229, 220, 0.85);
+}
+
+/* 进入按钮：黑色胶囊 + 白色文字 + 右上箭头（跳转到 earth.html） */
+.enter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 3.2rem;
+  padding: 15px 30px;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: #fff;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.enter-btn .btn-arrow {
+  font-size: 13px;
+  line-height: 1;
+  transform: translateY(-2px);
+}
+
+.enter-btn:hover {
+  background: #1a1a1a;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* 文字：每次进入时播放一次 1.2s 入场动画；离开后重置以便下次重放 */
+.section-3 .deloc,
+.section-3 .deloc-sub,
+.section-3 .enter-btn {
+  opacity: 0;
+}
+
+.section-3.enter .deloc {
+  animation: deloc-in 1.2s ease forwards;
+}
+
+.section-3.enter .deloc-sub {
+  animation: deloc-in 1.2s ease 0.15s forwards;
+}
+
+.section-3.enter .enter-btn {
+  animation: deloc-in 1.2s ease 0.3s forwards;
+}
+
+@keyframes deloc-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 第一/二/四面文字：与第三面相同的“进入播放一次 + 随滚动淡出” */
+.js .hero .hero-title,
+.js .hero .accent-bar,
+.js .about .section-head,
+.js .about .about-grid,
+.js .future .future-title,
+.js .future .future-sub,
+.js .future .future-body {
+  opacity: 0;
+}
+
+.hero.enter .hero-title,
+.about.enter .section-head,
+.future.enter .future-title {
+  animation: sec-text-in 1.2s ease forwards;
+}
+
+.hero.enter .accent-bar,
+.about.enter .about-grid,
+.future.enter .future-sub {
+  animation: sec-text-in 1.2s ease 0.12s forwards;
+}
+
+@keyframes sec-text-in {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* 第四面：与前面相同的淡进/淡出，但整体比它们晚 0.5s */
+.future {
+  transition: opacity 0.45s ease 0.5s;
+}
+
+.future.enter .future-title {
+  animation: sec-text-in 1.2s ease 0.5s forwards;
+}
+
+.future.enter .future-sub {
+  animation: sec-text-in 1.2s ease 0.62s forwards;
+}
+
+.future.enter .future-body {
+  animation: sec-text-in 1.2s ease 0.74s forwards;
+}
+
+.future-body {
+  max-width: 56ch;
+  margin-top: 1.4rem;
+  font-family: var(--font);
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--ink-soft);
+  text-align: justify;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+  .about-photo {
+    max-width: 320px;
+    width: 100%;
+    margin-inline: auto;
+  }
+  .hero-title { flex-direction: column; gap: 0.1em; }
+}
