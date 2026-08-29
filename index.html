@@ -6,15 +6,9 @@
   <title>empty610's web</title>
   <script>document.documentElement.classList.add('js');</script>
 
-  <!-- Avant Garde居然在微软要收费,真是骇人听闻 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&display=swap"
-    rel="stylesheet"
-  />
-
-  <link rel="stylesheet" href="style.css?v=20260829-transition" />
+  <!-- 全部使用本地/系统字体，避免第三方字体阻塞首屏渲染。 -->
+  <link rel="preload" href="style.css?v=20260830-perf" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="style.css?v=20260830-perf" /></noscript>
   <script type="importmap">
 {
             "imports": {
@@ -819,7 +813,7 @@
             </p>
         </div>
           <figure class="about-photo">
-            <img class="photo" src="avatar-640.webp" width="640" height="640" alt="我的照片" />
+            <img class="photo" src="avatar-560.webp" width="560" height="560" alt="我的照片" />
           </figure>
         </div>
       </section>
@@ -861,7 +855,7 @@
               <path d="M17.8 6.2l2.3-2.3-1.5-1.5-2.6 2.6H8L5.4 2.4 3.9 3.9l2.3 2.3C4.5 6.8 3.3 8.6 3.3 10.6v4.9c0 2.4 1.9 4.3 4.3 4.3h8.8c2.4 0 4.3-1.9 4.3-4.3v-4.9c0-2-1.2-3.8-2.9-4.4zM8.6 17.1h-1v-3.6h1v3.6zm7.8 0h-1v-3.6h1v3.6z"/>
             </svg>
           </a>
-          <a class="contact-circle" href="mailto:jackmorgan0610@gmail.com" aria-label="邮箱" title="邮箱">
+          <a class="contact-circle" href="#" data-email="6a61636b6d6f7267616e3036313040676d61696c2e636f6d" aria-label="邮箱" title="邮箱">
             <span class="glyph">@</span>
           </a>
           <a class="contact-circle" href="#" data-pending aria-label="更多链接（待补充）" title="更多">

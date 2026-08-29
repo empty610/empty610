@@ -42,9 +42,9 @@
   /* 正文：保持原有风格，仍用 Helvetica 系 */
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           "Helvetica Neue", Helvetica, Arial, sans-serif;
-  /* 标题：本地 Avant Garde 优先，缺失时回退到几何感较强的 Poppins */
+  /* 标题：本地 Avant Garde 优先，缺失时使用系统字体。 */
   --font-display: "Avant Garde", "ITC Avant Garde Gothic Pro", "Avant Garde Gothic",
-          "Poppins", "Helvetica Neue", Helvetica, Arial, sans-serif;
+          "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* 参考图里的低饱和度三色装饰条（青 -> 金 -> 红） */
   --accent-gradient: linear-gradient(90deg, #6fd3c7 0%, #f2c14e 45%, #d24b45 100%);

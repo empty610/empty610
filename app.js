@@ -268,6 +268,13 @@ if (goTerminal && terminal && terminalClose) {
   });
 }
 
+// 邮箱地址在页面加载后再还原，避免 Cloudflare 邮箱混淆功能额外注入脚本。
+document.querySelectorAll('.contact-circle[data-email]').forEach((link) => {
+  const hex = link.dataset.email || '';
+  const address = hex.replace(/../g, (pair) => String.fromCharCode(parseInt(pair, 16)));
+  if (address) link.href = `mailto:${address}`;
+});
+
 // 占位的联系按钮（href="#"）点击时不跳回顶部；替换 href 后即为可用链接
 document.addEventListener('click', (e) => {
   const placeholder = e.target.closest('.contact-circle[data-pending]');
