@@ -1088,8 +1088,23 @@
   <script src="app.js?v=20260829-transition"></script>
 <script type="module">
 
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        // Three.js is only needed after the visitor opens the terminal. Keep it out of
+        // the initial page payload, then fetch it while the terminal boot animation plays.
+        let THREE;
+        let OrbitControls;
+        let threeLoadPromise;
+        function loadThree() {
+            if (!threeLoadPromise) {
+                threeLoadPromise = Promise.all([
+                    import('three'),
+                    import('three/addons/controls/OrbitControls.js')
+                ]).then(([threeModule, controlsModule]) => {
+                    THREE = threeModule;
+                    OrbitControls = controlsModule.OrbitControls;
+                });
+            }
+            return threeLoadPromise;
+        }
 
         const container     = document.getElementById('three-canvas');
         const wrapper       = document.getElementById('sceneWrapper');
@@ -1203,6 +1218,11 @@
 
         function boot() {
             initBtn.disabled = true;
+            // Start downloading the 3D renderer only after the user has opted into it.
+            // The transition below gives this request time to finish before the dashboard appears.
+            loadThree().catch(() => {
+                statusEl.textContent = '3D MODULE UNAVAILABLE';
+            });
             audio.volume = 0.4;
             audio.muted = false;
             audio.play().catch(() => {});
@@ -1273,7 +1293,8 @@
         });
 
         // ---------- 3D 场景（保持不变） ----------
-        function startApp() {
+        async function startApp() {
+            await loadThree();
             const scene = new THREE.Scene();
             scene.background = new THREE.Color('#ece6dc');
 
