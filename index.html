@@ -1645,12 +1645,24 @@
                     }
                     const vector = worldPos.clone();
                     vector.project(camera);
-                    if (isBlocked || vector.z > 1) {
+                    // Keep labels attached to visible craft, while allowing a small
+                    // edge buffer for craft that sit just outside the camera frame.
+                    const isOutsideFrame = vector.x < -1.12 || vector.x > 1.12 || vector.y < -1.12 || vector.y > 1.12;
+                    if (isBlocked || vector.z > 1 || isOutsideFrame) {
                         item.element.style.display = 'none';
                     } else {
                         item.element.style.display = 'block';
-                        const x = (vector.x * 0.5 + 0.5) * container.clientWidth;
-                        const y = (-vector.y * 0.5 + 0.5) * container.clientHeight;
+                        const rawX = (vector.x * 0.5 + 0.5) * container.clientWidth;
+                        const rawY = (-vector.y * 0.5 + 0.5) * container.clientHeight;
+                        const edge = 10;
+                        const labelWidth = item.element.offsetWidth;
+                        const labelHeight = item.element.offsetHeight;
+                        const minX = Math.min(container.clientWidth / 2, labelWidth / 2 + edge);
+                        const maxX = Math.max(container.clientWidth / 2, container.clientWidth - labelWidth / 2 - edge);
+                        const minY = Math.min(container.clientHeight / 2, labelHeight * 1.2 + edge);
+                        const maxY = Math.max(minY, container.clientHeight - edge);
+                        const x = Math.min(Math.max(rawX, minX), maxX);
+                        const y = Math.min(Math.max(rawY, minY), maxY);
                         item.element.style.transform = `translate(-50%, -120%) translate(${x}px, ${y}px)`;
                     }
                 });
