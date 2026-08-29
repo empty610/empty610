@@ -115,8 +115,8 @@ function setupEnter() {
 // The bar now reflects what the page actually loads instead of a fake
 // eased timer. The base value comes from the browser's own lifecycle
 // state, and real sub-resources (stylesheets, scripts, images, fonts)
-// push it toward 100% as they finish. window.load marks the fully-loaded
-// moment and triggers the switch to the main screen.
+// push it toward 100% as they finish. The welcome screen starts as soon as
+// the DOM is ready, so below-the-fold assets cannot delay the LCP.
 // ---------------------------------------------------------------------
 
 const BASE = {
@@ -137,7 +137,7 @@ function refresh() {
   const base = BASE[document.readyState] ?? BASE.loading;
   const { total, loaded } = resourceStats();
   const fraction = total > 0 ? loaded / total : 0;
-  // Resources carry us most of the way; window.load closes the gap to 100%.
+  // Resources carry the indicator forward until the welcome transition begins.
   setProgress(base + fraction * (100 - base) * 0.9);
 }
 
@@ -148,17 +148,18 @@ try {
   observer.observe({ type: 'resource', buffered: true });
 } catch (e) { /* PerformanceObserver unsupported: fall back to lifecycle */ }
 
-document.addEventListener('DOMContentLoaded', refresh);
-
-window.addEventListener('load', () => {
+document.addEventListener('DOMContentLoaded', () => {
   refresh();
-  // Leave a short beat at 100%, then transition out to WELCOME.
+  // Start the welcome transition once first-screen markup is ready. Images and
+  // other non-critical resources continue downloading in the background.
   setTimeout(finish, 300);
 });
 
-// If the page is already loaded when this runs (very fast/local case),
-// jump straight to the finished state.
-if (document.readyState === 'complete') {
+window.addEventListener('load', refresh);
+
+// If the DOM was already parsed when this runs (very fast/local case),
+// start the transition immediately.
+if (document.readyState !== 'loading') {
   refresh();
   setTimeout(finish, 300);
 }
