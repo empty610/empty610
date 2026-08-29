@@ -243,6 +243,17 @@ const terminal = document.getElementById('terminal');
 const terminalClose = document.getElementById('terminal-close');
 
 if (goTerminal && terminal && terminalClose) {
+  let backHideTimer;
+  const showTerminalBack = () => {
+    clearTimeout(backHideTimer);
+    terminalClose.classList.remove('is-idle-hidden');
+    if (!terminal.hidden) {
+      backHideTimer = setTimeout(() => {
+        terminalClose.classList.add('is-idle-hidden');
+      }, 3000);
+    }
+  };
+
   goTerminal.addEventListener('click', () => {
     terminal.hidden = false;
     // 每次进入都重放一次入场动画（浏览器对 display 切换有时不会重启动画）
@@ -251,10 +262,13 @@ if (goTerminal && terminal && terminalClose) {
     terminal.style.animation = '';
     document.documentElement.classList.add('terminal-open');
     document.body.style.overflow = 'hidden';
+    showTerminalBack();
   });
 
   const closeTerminal = () => {
     if (terminal.hidden) return;
+    clearTimeout(backHideTimer);
+    terminalClose.classList.remove('is-idle-hidden');
     terminal.hidden = true;
     document.documentElement.classList.remove('terminal-open');
     document.body.style.overflow = '';
@@ -264,7 +278,11 @@ if (goTerminal && terminal && terminalClose) {
   };
 
   terminalClose.addEventListener('click', closeTerminal);
+  ['pointermove', 'pointerdown', 'touchstart', 'wheel'].forEach((eventName) => {
+    terminal.addEventListener(eventName, showTerminalBack, { passive: true });
+  });
   document.addEventListener('keydown', (e) => {
+    if (!terminal.hidden) showTerminalBack();
     if (e.key === 'Escape') closeTerminal();
   });
 }
