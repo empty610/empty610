@@ -278,7 +278,7 @@ if (goTerminal && terminal && terminalClose) {
   };
 
   terminalClose.addEventListener('click', closeTerminal);
-  ['pointermove', 'pointerdown', 'touchstart', 'wheel'].forEach((eventName) => {
+  ['pointerdown', 'touchstart'].forEach((eventName) => {
     terminal.addEventListener(eventName, showTerminalBack, { passive: true });
   });
   document.addEventListener('keydown', (e) => {
