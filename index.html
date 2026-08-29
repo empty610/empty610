@@ -1702,14 +1702,15 @@
             window.addEventListener('resize', onResize);
             new ResizeObserver(onResize).observe(wrapper);
 
-            let MET = 15 * 3600 + 20 * 60 + 29;
-            setInterval(() => {
-                MET++;
-                const h = String(Math.floor(MET / 3600)).padStart(2,'0');
-                const m = String(Math.floor((MET % 3600) / 60)).padStart(2,'0');
-                const s = String(MET % 60).padStart(2,'0');
+            function updateClock() {
+                const now = new Date();
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
                 dom.clock.textContent = `${h}:${m}:${s}`;
-            }, 1000);
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
 
             setInterval(() => {
                 dom.altitude.textContent = (400 + (Math.sin(Date.now()/5000)*0.00025 + 2.5)).toFixed(1);
