@@ -473,7 +473,7 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   justify-content: center;
   padding: 4vh 5vw 18vh; /* 底部留白多，把标题往上带 */
   text-align: center;
-  background-image: url("backdrop-3.png");
+  background-image: url("backdrop-3.webp");
   background-size: cover;
   background-position: center;
   color: #e9e5dc;
