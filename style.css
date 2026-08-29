@@ -428,6 +428,15 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
 }
 
 .contact-circle svg { width: 24px; height: 24px; fill: currentColor; }
+.contact-circle .gmail-icon {
+  width: 27px;
+  height: 27px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .contact-circle .glyph { line-height: 1; }
 
 .contact-circle:hover {
