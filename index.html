@@ -1184,8 +1184,13 @@
             }
         }
 
-        orbitTabBtns.forEach(btn => btn.addEventListener('click', () => switchOrbitPanel(btn.dataset.target)));
-        vehicleCards.forEach(card => card.addEventListener('click', () => switchOrbitPanel(card.dataset.sc)));
+        orbitTabBtns.forEach(btn => btn.addEventListener('click', () => {
+            const target = btn.dataset.target;
+            switchOrbitPanel(target, target !== 'global');
+        }));
+        vehicleCards.forEach(card => card.addEventListener('click', () => {
+            switchOrbitPanel(card.dataset.sc, true);
+        }));
 
         /* ===== 运转速度控制（1x / 0.5x / 0.25x / 0.1x） ===== */
         const speedBtns = Array.from(document.querySelectorAll('.speed-btn'));
