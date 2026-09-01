@@ -212,31 +212,15 @@ if (musicToggle && bgAudio) {
   bgAudio.addEventListener('play', setMusicIcon);
   bgAudio.addEventListener('pause', setMusicIcon);
 
-  // 恢复：若之前处于播放状态，静音自动播放保持进度，首次交互后变为可听
-  try {
-    if (localStorage.getItem(M_PLAYING) === '1') {
-      const t = parseFloat(localStorage.getItem(M_TIME)) || 0;
-      if (t > 0) bgAudio.currentTime = t;
-      bgAudio.muted = true;            // 先静音，允许自动播放
-      const p = bgAudio.play();
-      if (p) p.catch(() => {});
-      document.documentElement.classList.add('music-playing');
-      const unmute = () => {
-        bgAudio.muted = false;
-        document.removeEventListener('pointerdown', unmute);
-        document.removeEventListener('click', unmute);
-      };
-      document.addEventListener('pointerdown', unmute);
-      document.addEventListener('click', unmute);
-    }
-  } catch (e) { /* 忽略 */ }
+  // 不自动恢复播放：终端配乐必须由 INITIATE SYSTEM 的明确操作启动，
+  // 避免点击 GO TERMINAL 时因上一轮状态而提前出声。
 
   // 周期保存进度，便于切换页面时续播
   setInterval(saveMusicState, 2000);
 }
 
 // ---------------------------------------------------------------------
-// 单页覆盖层：GO TERMINAL 打开终端；关闭后回到第三面（音乐不中断）。
+// 单页覆盖层：GO TERMINAL 只打开终端；配乐由 INITIATE SYSTEM 启动。
 // ---------------------------------------------------------------------
 const goTerminal = document.getElementById('go-terminal');
 const terminal = document.getElementById('terminal');
