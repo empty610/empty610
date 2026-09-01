@@ -1499,7 +1499,7 @@
             const trackables = [];
             spacecrafts.forEach((sc) => {
                 const hex = { D1:'#d4a84b', D2:'#6ba7d4', DR1:'#7ccf8c', DWS1:'#cf88b0' }[sc.name] || '#ffffff';
-                trackables.push({ element: createTrackLabel(sc.name, hex), object: sc.group });
+                trackables.push({ element: createTrackLabel(sc.name, hex), object: sc.group, x: null, y: null });
             });
 
             const raycaster = new THREE.Raycaster();
@@ -1637,7 +1637,7 @@
                 lockDistance = Math.max(1.2, Math.min(8, lockDistance + e.deltaY * 0.004));
             }, { passive: false });
 
-            function updateLabels() {
+            function updateLabels(delta) {
                 trackables.forEach((item) => {
                     const worldPos = new THREE.Vector3();
                     item.object.getWorldPosition(worldPos);
@@ -1655,6 +1655,8 @@
                     const isOutsideFrame = vector.x < -1.12 || vector.x > 1.12 || vector.y < -1.12 || vector.y > 1.12;
                     if (isBlocked || vector.z > 1 || isOutsideFrame) {
                         item.element.style.display = 'none';
+                        item.x = null;
+                        item.y = null;
                     } else {
                         item.element.style.display = 'block';
                         const rawX = (vector.x * 0.5 + 0.5) * container.clientWidth;
@@ -1666,9 +1668,14 @@
                         const maxX = Math.max(container.clientWidth / 2, container.clientWidth - labelWidth / 2 - edge);
                         const minY = Math.min(container.clientHeight / 2, labelHeight * 1.2 + edge);
                         const maxY = Math.max(minY, container.clientHeight - edge);
-                        const x = Math.min(Math.max(rawX, minX), maxX);
-                        const y = Math.min(Math.max(rawY, minY), maxY);
-                        item.element.style.transform = `translate(-50%, -120%) translate(${x}px, ${y}px)`;
+                        const targetX = Math.min(Math.max(rawX, minX), maxX);
+                        const targetY = Math.min(Math.max(rawY, minY), maxY);
+                        // Exponential interpolation keeps labels stable during locked-camera drags
+                        // without making them feel detached from their spacecraft.
+                        const follow = item.x === null ? 1 : 1 - Math.exp(-18 * delta);
+                        item.x = item.x === null ? targetX : item.x + (targetX - item.x) * follow;
+                        item.y = item.y === null ? targetY : item.y + (targetY - item.y) * follow;
+                        item.element.style.transform = `translate(-50%, -120%) translate(${item.x}px, ${item.y}px)`;
                     }
                 });
             }
@@ -1705,7 +1712,7 @@
                 } else {
                     controls.update();
                 }
-                updateLabels();
+                updateLabels(delta);
                 renderer.render(scene, camera);
             }
             animate(performance.now());
