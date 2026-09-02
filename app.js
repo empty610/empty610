@@ -176,6 +176,8 @@ const musicToggle = document.getElementById('music-toggle');
 const bgAudio = document.getElementById('bg-music');
 const M_PLAYING = 'site.music.playing';
 const M_TIME = 'site.music.time';
+let mainMusicStarted = false;
+let terminalMusicPausedOnExit = false;
 
 function saveMusicState() {
   try {
@@ -200,6 +202,8 @@ function startMusic(fromGesture) {
 if (musicToggle && bgAudio) {
   musicToggle.addEventListener('click', () => {
     if (bgAudio.paused) {
+      mainMusicStarted = true;
+      terminalMusicPausedOnExit = false;
       bgAudio.muted = false;
       startMusic(true);
     } else {
@@ -246,6 +250,12 @@ if (goTerminal && terminal && terminalClose) {
     terminal.style.animation = '';
     document.documentElement.classList.add('terminal-open');
     document.body.style.overflow = 'hidden';
+    // After the first initialized session, resume only music that this exit
+    // handler paused itself. A visitor's manual pause remains respected.
+    if (terminalMusicPausedOnExit && bgAudio.paused) {
+      terminalMusicPausedOnExit = false;
+      startMusic(true);
+    }
     showTerminalBack();
   });
 
@@ -253,6 +263,14 @@ if (goTerminal && terminal && terminalClose) {
     if (terminal.hidden) return;
     clearTimeout(backHideTimer);
     terminalClose.classList.remove('is-idle-hidden');
+    // Music started by INITIATE SYSTEM is terminal-only. Keep it only when the
+    // visitor explicitly opted in via the main-page music control.
+    if (!mainMusicStarted && !bgAudio.paused) {
+      bgAudio.pause();
+      setMusicIcon();
+      saveMusicState();
+      terminalMusicPausedOnExit = true;
+    }
     terminal.hidden = true;
     document.documentElement.classList.remove('terminal-open');
     document.body.style.overflow = '';

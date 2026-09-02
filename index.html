@@ -1287,11 +1287,6 @@
         }
 
         initBtn.addEventListener('click', boot);
-        document.addEventListener('click', () => {
-            if (audio.paused && !audio.muted && mainUI.classList.contains('active')) {
-                audio.play().catch(() => {});
-            }
-        });
 
         // ---------- 3D 场景（保持不变） ----------
         async function startApp() {
@@ -1537,15 +1532,14 @@
                 }
             };
             onUnlockVehicle = () => {
-                const wasLocked = !!lockObj;
                 lockObj = null;
                 controls.enabled = true;
                 controls.enableDamping = true;
                 controls.autoRotate = true;
-                // 直接解锁在当前位置：保持相机朝向不变，不回正到地球
-                if (wasLocked) {
-                    controls.target.copy(followPos);
-                }
+                // Every free/orbital view is anchored to the Earth, never the
+                // last selected spacecraft. This keeps the planet centered.
+                controls.target.set(0, 0, 0);
+                controls.update();
             };
 
             function onCanvasPointerDown(e) {
