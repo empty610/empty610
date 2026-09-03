@@ -1,0 +1,141 @@
+name: Codex Security scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  codex-security:
+    name: Review pull request changes
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Check Codex Security access
+        id: access
+        env:
+          OPENAI_API_KEY: ${{ secrets.CODEX_SECURITY_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -z "${OPENAI_API_KEY:-}"; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Codex Security skipped::Add the CODEX_SECURITY_API_KEY repository secret after Codex Security access is enabled."
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node.js
+        if: steps.access.outputs.enabled == 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "26"
+
+      - name: Set up Python
+        if: steps.access.outputs.enabled == 'true'
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.14"
+
+      - name: Check out trusted scanner configuration
+        if: steps.access.outputs.enabled == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Install Codex Security outside the checkout
+        if: steps.access.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/codex-security"
+          cp .github/codex-security/package.json "$RUNNER_TEMP/codex-security/package.json"
+          cp .github/codex-security/package-lock.json "$RUNNER_TEMP/codex-security/package-lock.json"
+          npm ci \
+            --prefix "$RUNNER_TEMP/codex-security" \
+            --ignore-scripts \
+            --no-audit \
+            --no-fund
+
+      - name: Verify Codex Security
+        if: steps.access.outputs.enabled == 'true'
+        env:
+          CODEX_SECURITY_BIN: ${{ runner.temp }}/codex-security/node_modules/.bin/codex-security
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -x "$CODEX_SECURITY_BIN"
+          "$CODEX_SECURITY_BIN" --version
+
+      - name: Check out the pull request
+        if: steps.access.outputs.enabled == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Scan the pull request
+        if: steps.access.outputs.enabled == 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.CODEX_SECURITY_API_KEY }}
+          CODEX_SECURITY_BIN: ${{ runner.temp }}/codex-security/node_modules/.bin/codex-security
+          CODEX_SECURITY_STATE_DIR: ${{ runner.temp }}/codex-security-state
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          SCAN_DIR: ${{ runner.temp }}/codex-security-results
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_REVISION="$(git merge-base "$BASE_SHA" "$HEAD_SHA")"
+          "$CODEX_SECURITY_BIN" scan . \
+            --diff "$BASE_REVISION" \
+            --head "$HEAD_SHA" \
+            --auth api-key \
+            --output-dir "$SCAN_DIR" \
+            --json > "$RUNNER_TEMP/codex-security.json"
+
+      - name: Export SARIF
+        id: export-sarif
+        if: always() && steps.access.outputs.enabled == 'true'
+        env:
+          CODEX_SECURITY_BIN: ${{ runner.temp }}/codex-security/node_modules/.bin/codex-security
+          SCAN_DIR: ${{ runner.temp }}/codex-security-results
+          SARIF_FILE: ${{ runner.temp }}/codex-security.sarif
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f "$SCAN_DIR/scan-manifest.json"; then
+            "$CODEX_SECURITY_BIN" export "$SCAN_DIR" \
+              --export-format sarif \
+              --source-root "$GITHUB_WORKSPACE" \
+              --output "$SARIF_FILE"
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload SARIF
+        if: always() && steps.export-sarif.outputs.available == 'true'
+        uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
+        with:
+          sarif_file: ${{ runner.temp }}/codex-security.sarif
+          ref: refs/pull/${{ github.event.pull_request.number }}/head
+          sha: ${{ github.event.pull_request.head.sha }}
+          category: codex-security
+
+      - name: Preserve scan results
+        if: always() && steps.access.outputs.enabled == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: codex-security-results-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/codex-security-results
+            ${{ runner.temp }}/codex-security.json
+            ${{ runner.temp }}/codex-security.sarif
+          if-no-files-found: warn
+          retention-days: 7

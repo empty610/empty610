@@ -4,18 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>empty610's web</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'sha256-/x7W7R75k8Roq0WaVRQX9blP4OufE5xbAdzklGxsgpw=' 'sha256-ZY3julnmpsuMmF9wkKXYRI84e7942UWkNwyXLsJIz34='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'sha256-LirMFv9lItkW2Bsp29/FKv1HfKA2GCQnjOvfE1CNNho=' 'sha256-kn5WZCXW6Ai/xg+bx9ifutrwVzMudbLmoms3uCwAfPM='; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; worker-src 'none'; manifest-src 'self'; form-action 'none'; upgrade-insecure-requests" />
   <script>document.documentElement.classList.add('js');</script>
 
   <!-- 全部使用本地/系统字体，避免第三方字体阻塞首屏渲染。 -->
   <link rel="stylesheet" href="style.css?v=20260830-stable" />
-  <script type="importmap">
-{
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-            }
-        }
-  </script>
   <style>
 
         #terminal * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1089,14 +1082,30 @@
         let THREE;
         let OrbitControls;
         let threeLoadPromise;
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.async = true;
+                script.onload = resolve;
+                script.onerror = () => reject(new Error(`Unable to load ${src}`));
+                document.head.appendChild(script);
+            });
+        }
+
         function loadThree() {
             if (!threeLoadPromise) {
-                threeLoadPromise = Promise.all([
-                    import('three'),
-                    import('three/addons/controls/OrbitControls.js')
-                ]).then(([threeModule, controlsModule]) => {
-                    THREE = threeModule;
-                    OrbitControls = controlsModule.OrbitControls;
+                threeLoadPromise = loadScript('./vendor/three/build/three.min.js')
+                    .then(() => loadScript('./vendor/three/examples/jsm/controls/OrbitControls.global.js'))
+                    .then(() => location.protocol === 'file:'
+                        ? loadScript('./assets/textures/earth_atmos_2048.data.js')
+                        : undefined)
+                    .then(() => {
+                    THREE = globalThis.THREE;
+                    OrbitControls = globalThis.OrbitControls;
+                    if (!THREE || !OrbitControls) {
+                        throw new Error('Local Three.js runtime did not initialize');
+                    }
                 });
             }
             return threeLoadPromise;
@@ -1333,7 +1342,10 @@
             const earthGroup = new THREE.Group();
             scene.add(earthGroup);
             const radius = 1.25;
-            const tex = new THREE.TextureLoader().load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+            const textureUrl = location.protocol === 'file:'
+                ? globalThis.EARTH_TEXTURE_DATA_URL
+                : './assets/textures/earth_atmos_2048.jpg';
+            const tex = new THREE.TextureLoader().load(textureUrl);
             const earth = new THREE.Mesh(
                 new THREE.SphereGeometry(radius, 64, 64),
                 new THREE.MeshStandardMaterial({ map: tex, roughness: 0.45, metalness: 0.08 })
