@@ -655,13 +655,13 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.32s ease, visibility 0s linear 0.32s;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
 
 .dc-page-transition.is-active {
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.32s ease;
+  transition: opacity 0.3s ease;
 }
 
 .dc-transition-core {

@@ -194,7 +194,7 @@ if (dcTerminalLink && dcPageTransition) {
 
     window.setTimeout(() => {
       window.location.assign(dcTerminalLink.href);
-    }, 520);
+    }, 1000);
   });
 
   // 恢复前进/后退缓存页面时确保遮罩不会残留。

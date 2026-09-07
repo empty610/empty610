@@ -744,7 +744,7 @@ body { overflow: hidden; background: #0d0b08; }
 /* Completes the home-page hand-off: the dedicated DC boot interface settles
    into place instead of appearing as an abrupt document replacement. */
 body[data-page="terminal"] #terminal {
-  animation: dc-terminal-arrival 0.42s cubic-bezier(.22, .61, .36, 1) both;
+  animation: dc-terminal-arrival 0.3s cubic-bezier(.22, .61, .36, 1) both;
 }
 
 @keyframes dc-terminal-arrival {
