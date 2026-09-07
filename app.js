@@ -173,6 +173,38 @@ if (location.protocol === 'file:') {
   document.getElementById('go-terminal').href = './delocalized%20configuration%20project/index.html';
 }
 
+// DC 是一个独立页面。点击入口时先显示极短的传输过渡，避免页面直接切换；
+// 修饰键/非主键点击保留浏览器原生的新标签页和菜单行为。
+const dcTerminalLink = document.getElementById('go-terminal');
+const dcPageTransition = document.getElementById('dc-page-transition');
+if (dcTerminalLink && dcPageTransition) {
+  let dcNavigationPending = false;
+
+  dcTerminalLink.addEventListener('click', (event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    event.preventDefault();
+    if (dcNavigationPending) return;
+
+    dcNavigationPending = true;
+    dcPageTransition.classList.add('is-active');
+    document.documentElement.classList.add('dc-navigation-active');
+
+    window.setTimeout(() => {
+      window.location.assign(dcTerminalLink.href);
+    }, 520);
+  });
+
+  // 恢复前进/后退缓存页面时确保遮罩不会残留。
+  window.addEventListener('pageshow', () => {
+    dcNavigationPending = false;
+    dcPageTransition.classList.remove('is-active');
+    document.documentElement.classList.remove('dc-navigation-active');
+  });
+}
+
 // 邮箱地址在页面加载后再还原，避免 Cloudflare 邮箱混淆功能额外注入脚本。
 document.querySelectorAll('.contact-circle[data-email]').forEach((link) => {
   const hex = link.dataset.email || '';

@@ -740,4 +740,19 @@
     }
 
 body { overflow: hidden; background: #0d0b08; }
+
+/* Completes the home-page hand-off: the dedicated DC boot interface settles
+   into place instead of appearing as an abrupt document replacement. */
+body[data-page="terminal"] #terminal {
+  animation: dc-terminal-arrival 0.42s cubic-bezier(.22, .61, .36, 1) both;
+}
+
+@keyframes dc-terminal-arrival {
+  from { opacity: 0; transform: scale(1.018); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-page="terminal"] #terminal { animation-duration: 0.01ms; }
+}
 .terminal-close { text-decoration: none; }

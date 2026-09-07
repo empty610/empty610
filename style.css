@@ -638,6 +638,93 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   text-align: justify;
 }
 
+/* ---------- DC page hand-off ---------- */
+/* Keep the page visible underneath so the transfer reads as a deliberate hand-off,
+   then let the independent boot screen take over. */
+.dc-page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: #e5c76f;
+  background:
+    radial-gradient(circle at center, rgba(184, 148, 56, 0.16), transparent 30%),
+    rgba(13, 11, 8, 0.98);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.32s ease, visibility 0s linear 0.32s;
+}
+
+.dc-page-transition.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.32s ease;
+}
+
+.dc-transition-core {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(190px, 52vw);
+  aspect-ratio: 1;
+  isolation: isolate;
+}
+
+.dc-transition-orbit {
+  position: absolute;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(229, 199, 111, 0.58);
+  border-radius: 50%;
+  animation: dc-orbit 1.05s linear infinite;
+}
+
+.dc-transition-orbit-b {
+  width: 72%;
+  transform: rotateX(68deg) rotateZ(-30deg);
+  border-color: rgba(229, 199, 111, 0.34);
+  animation-direction: reverse;
+}
+
+.dc-transition-signal {
+  width: 13px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #e5c76f;
+  box-shadow: 0 0 0 7px rgba(229, 199, 111, 0.11), 0 0 30px rgba(229, 199, 111, 0.85);
+  animation: dc-signal 0.72s ease-in-out infinite alternate;
+}
+
+.dc-transition-core p {
+  position: absolute;
+  top: calc(100% + 20px);
+  width: max-content;
+  max-width: 80vw;
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-align: center;
+}
+
+@keyframes dc-orbit {
+  to { rotate: 360deg; }
+}
+
+@keyframes dc-signal {
+  to { transform: scale(1.35); opacity: 0.68; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-page-transition,
+  .dc-page-transition.is-active { transition-duration: 0.01ms; }
+  .dc-transition-orbit,
+  .dc-transition-signal { animation: none; }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 720px) {
   .about-grid {
