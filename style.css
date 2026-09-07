@@ -655,13 +655,13 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
 }
 
 .dc-page-transition.is-active {
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
 }
 
 .dc-transition-core {
@@ -671,6 +671,15 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   width: min(190px, 52vw);
   aspect-ratio: 1;
   isolation: isolate;
+  opacity: 0;
+  transform: scale(0.9) translateZ(0);
+  will-change: opacity, transform;
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.22, .61, .36, 1);
+}
+
+.dc-page-transition.is-active .dc-transition-core {
+  opacity: 1;
+  transform: scale(1) translateZ(0);
 }
 
 .dc-transition-orbit {
@@ -679,14 +688,22 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   aspect-ratio: 1;
   border: 1px solid rgba(229, 199, 111, 0.58);
   border-radius: 50%;
-  animation: dc-orbit 1.05s linear infinite;
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 .dc-transition-orbit-b {
   width: 72%;
   transform: rotateX(68deg) rotateZ(-30deg);
   border-color: rgba(229, 199, 111, 0.34);
-  animation-direction: reverse;
+}
+
+.dc-page-transition.is-active .dc-transition-orbit-a {
+  animation: dc-orbit-a 0.78s cubic-bezier(.22, .61, .36, 1) both;
+}
+
+.dc-page-transition.is-active .dc-transition-orbit-b {
+  animation: dc-orbit-b 0.78s 0.06s cubic-bezier(.22, .61, .36, 1) both;
 }
 
 .dc-transition-signal {
@@ -694,8 +711,12 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   aspect-ratio: 1;
   border-radius: 50%;
   background: #e5c76f;
-  box-shadow: 0 0 0 7px rgba(229, 199, 111, 0.11), 0 0 30px rgba(229, 199, 111, 0.85);
-  animation: dc-signal 0.72s ease-in-out infinite alternate;
+  box-shadow: 0 0 0 7px rgba(229, 199, 111, 0.11), 0 0 18px rgba(229, 199, 111, 0.7);
+  will-change: transform, opacity;
+}
+
+.dc-page-transition.is-active .dc-transition-signal {
+  animation: dc-signal 0.72s 0.1s ease-in-out both;
 }
 
 .dc-transition-core p {
@@ -710,17 +731,25 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   text-align: center;
 }
 
-@keyframes dc-orbit {
-  to { rotate: 360deg; }
+@keyframes dc-orbit-a {
+  from { transform: translateZ(0) rotate(-36deg); opacity: 0; }
+  to { transform: translateZ(0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes dc-orbit-b {
+  from { transform: rotateX(68deg) rotateZ(-76deg); opacity: 0; }
+  to { transform: rotateX(68deg) rotateZ(-30deg); opacity: 1; }
 }
 
 @keyframes dc-signal {
-  to { transform: scale(1.35); opacity: 0.68; }
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .dc-page-transition,
-  .dc-page-transition.is-active { transition-duration: 0.01ms; }
+  .dc-page-transition.is-active,
+  .dc-transition-core { transition-duration: 0.01ms; }
   .dc-transition-orbit,
   .dc-transition-signal { animation: none; }
 }

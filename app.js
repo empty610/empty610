@@ -5,6 +5,7 @@ const percent = document.getElementById('percent');
 const app = document.getElementById('app');
 
 let finished = false;
+let finishScheduled = false;
 
 function setProgress(p) {
   const v = Math.max(0, Math.min(100, Math.round(p)));
@@ -22,6 +23,27 @@ function finish() {
   loading.classList.add('is-done');
   setupReveal();
   if (location.hash === '#dc') document.getElementById('dc')?.scrollIntoView({ behavior: 'instant', block: 'center' });
+}
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+// The title font is local but can still arrive after first layout on a new
+// device. Keep the loading screen up until it is ready, with a short ceiling
+// so a slow connection never turns font loading into a blocked landing page.
+function scheduleFinish() {
+  if (finishScheduled) return;
+  finishScheduled = true;
+
+  const criticalFont = document.fonts?.load
+    ? Promise.race([
+        document.fonts.load('800 1em "Avant Garde"').catch(() => undefined),
+        wait(700),
+      ])
+    : Promise.resolve();
+
+  Promise.all([wait(300), criticalFont]).then(finish);
 }
 
 // Scroll-triggered 渐变动画（约 0.5s）：区块进入视口时淡入。
@@ -151,9 +173,9 @@ try {
 
 document.addEventListener('DOMContentLoaded', () => {
   refresh();
-  // Start the welcome transition once first-screen markup is ready. Images and
-  // other non-critical resources continue downloading in the background.
-  setTimeout(finish, 300);
+  // Start once markup and the critical title font are ready. Images and other
+  // non-critical resources continue downloading in the background.
+  scheduleFinish();
 });
 
 window.addEventListener('load', refresh);
@@ -162,7 +184,7 @@ window.addEventListener('load', refresh);
 // start the transition immediately.
 if (document.readyState !== 'loading') {
   refresh();
-  setTimeout(finish, 300);
+  scheduleFinish();
 }
 
 // Public hook: report in later from async work (data fetches, media).
@@ -189,17 +211,25 @@ if (dcTerminalLink && dcPageTransition) {
     if (dcNavigationPending) return;
 
     dcNavigationPending = true;
-    dcPageTransition.classList.add('is-active');
+    // Commit the overlay's initial frame before beginning composited motion.
+    // This prevents the first paint from being skipped under a busy first load.
+    dcPageTransition.classList.add('is-mounted');
     document.documentElement.classList.add('dc-navigation-active');
 
-    window.setTimeout(() => {
-      window.location.assign(dcTerminalLink.href);
-    }, 1000);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        dcPageTransition.classList.add('is-active');
+        window.setTimeout(() => {
+          window.location.assign(dcTerminalLink.href);
+        }, 1000);
+      });
+    });
   });
 
   // 恢复前进/后退缓存页面时确保遮罩不会残留。
   window.addEventListener('pageshow', () => {
     dcNavigationPending = false;
+    dcPageTransition.classList.remove('is-mounted');
     dcPageTransition.classList.remove('is-active');
     document.documentElement.classList.remove('dc-navigation-active');
   });
