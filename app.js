@@ -21,6 +21,7 @@ function finish() {
   app.classList.add('is-ready');
   loading.classList.add('is-done');
   setupReveal();
+  if (location.hash === '#dc') document.getElementById('dc')?.scrollIntoView({ behavior: 'instant', block: 'center' });
 }
 
 // Scroll-triggered 渐变动画（约 0.5s）：区块进入视口时淡入。
@@ -167,126 +168,9 @@ if (document.readyState !== 'loading') {
 // Public hook: report in later from async work (data fetches, media).
 window.siteLoader = { setProgress, finish };
 
-// ---------------------------------------------------------------------
-// 背景音乐：ad astra.mp3，循环播放；跨页面时按上次进度继续。
-// 利用“静音自动播放 + 首次交互取消静音”来绕过浏览器自动播放限制，
-// 让音乐在切换页面后也不会中断（位置保持、循环持续）。
-// ---------------------------------------------------------------------
-const musicToggle = document.getElementById('music-toggle');
-const bgAudio = document.getElementById('bg-music');
-const M_PLAYING = 'site.music.playing';
-const M_TIME = 'site.music.time';
-let mainMusicStarted = false;
-let terminalMusicPausedOnExit = false;
-
-function saveMusicState() {
-  try {
-    localStorage.setItem(M_PLAYING, bgAudio.paused ? '0' : '1');
-    localStorage.setItem(M_TIME, String(bgAudio.currentTime));
-  } catch (e) { /* 隐私模式等场景忽略 */ }
-}
-
-function setMusicIcon() {
-  document.documentElement.classList.toggle('music-playing', !bgAudio.paused);
-}
-
-function startMusic(fromGesture) {
-  if (fromGesture) bgAudio.muted = false;
-  bgAudio.volume = 0.4;
-  const p = bgAudio.play();
-  if (p) p.catch(() => {});
-  setMusicIcon();
-  saveMusicState();
-}
-
-if (musicToggle && bgAudio) {
-  musicToggle.addEventListener('click', () => {
-    if (bgAudio.paused) {
-      mainMusicStarted = true;
-      terminalMusicPausedOnExit = false;
-      bgAudio.muted = false;
-      startMusic(true);
-    } else {
-      bgAudio.pause();
-      setMusicIcon();
-      saveMusicState();
-    }
-  });
-
-  bgAudio.addEventListener('play', setMusicIcon);
-  bgAudio.addEventListener('pause', setMusicIcon);
-
-  // 不自动恢复播放：终端配乐必须由 INITIATE SYSTEM 的明确操作启动，
-  // 避免点击 GO TERMINAL 时因上一轮状态而提前出声。
-
-  // 周期保存进度，便于切换页面时续播
-  setInterval(saveMusicState, 2000);
-}
-
-// ---------------------------------------------------------------------
-// 单页覆盖层：GO TERMINAL 只打开终端；配乐由 INITIATE SYSTEM 启动。
-// ---------------------------------------------------------------------
-const goTerminal = document.getElementById('go-terminal');
-const terminal = document.getElementById('terminal');
-const terminalClose = document.getElementById('terminal-close');
-
-if (goTerminal && terminal && terminalClose) {
-  let backHideTimer;
-  const showTerminalBack = () => {
-    clearTimeout(backHideTimer);
-    terminalClose.classList.remove('is-idle-hidden');
-    if (!terminal.hidden) {
-      backHideTimer = setTimeout(() => {
-        terminalClose.classList.add('is-idle-hidden');
-      }, 3000);
-    }
-  };
-
-  goTerminal.addEventListener('click', () => {
-    terminal.hidden = false;
-    // 每次进入都重放一次入场动画（浏览器对 display 切换有时不会重启动画）
-    terminal.style.animation = 'none';
-    void terminal.offsetWidth; // 强制回流，重置动画
-    terminal.style.animation = '';
-    document.documentElement.classList.add('terminal-open');
-    document.body.style.overflow = 'hidden';
-    // After the first initialized session, resume only music that this exit
-    // handler paused itself. A visitor's manual pause remains respected.
-    if (terminalMusicPausedOnExit && bgAudio.paused) {
-      terminalMusicPausedOnExit = false;
-      startMusic(true);
-    }
-    showTerminalBack();
-  });
-
-  const closeTerminal = () => {
-    if (terminal.hidden) return;
-    clearTimeout(backHideTimer);
-    terminalClose.classList.remove('is-idle-hidden');
-    // Music started by INITIATE SYSTEM is terminal-only. Keep it only when the
-    // visitor explicitly opted in via the main-page music control.
-    if (!mainMusicStarted && !bgAudio.paused) {
-      bgAudio.pause();
-      setMusicIcon();
-      saveMusicState();
-      terminalMusicPausedOnExit = true;
-    }
-    terminal.hidden = true;
-    document.documentElement.classList.remove('terminal-open');
-    document.body.style.overflow = '';
-    // 返回到第三面
-    const sec3 = document.querySelector('.section-3');
-    if (sec3) sec3.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
-
-  terminalClose.addEventListener('click', closeTerminal);
-  ['pointerdown', 'touchstart'].forEach((eventName) => {
-    terminal.addEventListener(eventName, showTerminalBack, { passive: true });
-  });
-  document.addEventListener('keydown', (e) => {
-    if (!terminal.hidden) showTerminalBack();
-    if (e.key === 'Escape') closeTerminal();
-  });
+// Directory URLs are canonical on the website; file previews need an HTML file.
+if (location.protocol === 'file:') {
+  document.getElementById('go-terminal').href = './delocalized%20configuration%20project/index.html';
 }
 
 // 邮箱地址在页面加载后再还原，避免 Cloudflare 邮箱混淆功能额外注入脚本。

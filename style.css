@@ -206,6 +206,7 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
 /* 第三面入口与仪表盘返回键共用深色金边面板。 */
 .terminal-close,
 .enter-btn {
+  text-decoration: none;
   color: #f6f1e8;
   background: rgba(13, 11, 8, 0.9);
   backdrop-filter: blur(6px);

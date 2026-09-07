@@ -25,10 +25,11 @@ create an equivalent Cloudflare **Response Header Transform Rule** for
 protects browsers if the edge rule is absent, but response-only protections such
 as `frame-ancestors` and HSTS require the Cloudflare rule.
 
-## Updating inline code
+## Page assets and CSP
 
-The policy permits inline scripts and style elements only through SHA-256 hashes.
-If an inline block changes, calculate a new CSP hash and update both `index.html`
-and `_headers`. Inline style attributes remain enabled because the terminal uses
-runtime positioning and animation through element style properties. Inline event
-handlers are prohibited.
+The homepage and `/delocalized%20configuration%20project/` load their scripts and
+stylesheets from same-origin files. Inline scripts, inline event handlers, and
+inline style elements are prohibited; no CSP hashes need updating for normal
+script or stylesheet changes. Inline style attributes remain enabled for the
+terminal's positioning and animation. Keep the meta policies on both pages and
+the response policy in `_headers` in sync.
