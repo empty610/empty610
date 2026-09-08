@@ -13,6 +13,7 @@
   <!-- 全部使用本地/系统字体，避免第三方字体阻塞首屏渲染。 -->
   <link rel="stylesheet" href="style.css?v=20260909-spacing" />
   <link rel="stylesheet" href="venus-entry.css?v=20260909-spacing" />
+  <link rel="stylesheet" href="navigation.css?v=20260909" />
 </head>
 <body>
   <div id="app" class="board">
@@ -48,10 +49,10 @@
       </section>
 
       <!-- 介绍区：参考图一 关于我 -->
-      <section class="section about reveal-fade">
+      <section id="about" class="section about reveal-fade" tabindex="-1" aria-labelledby="about-title">
         <div class="section-head">
           <span class="section-icon" aria-hidden="true"></span>
-          <h2 class="section-title">关于我</h2>
+          <h2 id="about-title" class="section-title">关于我</h2>
           <span class="accent-bar small" aria-hidden="true"></span>
         </div>
 
@@ -74,7 +75,7 @@
       </section>
 
       <!-- 第三面：lo-fi 底片背景 -->
-      <section id="dc" class="section-3 reveal-fade">
+      <section id="dc" class="section-3 reveal-fade" tabindex="-1" aria-label="系统作品：Delocalized Configuration">
         <div class="section-3-content">
           <div class="deloc">
             <span class="deloc-line">DELOCALIZED</span>
@@ -89,7 +90,7 @@
       </section>
 
       <!-- Venus 项目入口：独立的 90–100vh 金星预览。 -->
-      <section id="venus" class="venus-preview reveal-fade" aria-labelledby="venus-title">
+      <section id="venus" class="venus-preview reveal-fade" tabindex="-1" aria-labelledby="venus-title">
         <div class="venus-preview-copy">
           <p class="venus-eyebrow">SOLAR LABORATORY / 02</p>
           <h2 id="venus-title">VENUS<span>金星</span></h2>
@@ -114,10 +115,10 @@
       </section>
 
       <!-- 联系区 -->
-      <section class="section contact reveal">
+      <section id="contact" class="section contact reveal" tabindex="-1" aria-labelledby="contact-title">
         <div class="section-head">
           <span class="section-icon" aria-hidden="true"></span>
-          <h2 class="section-title">联系</h2>
+          <h2 id="contact-title" class="section-title">联系</h2>
           <span class="accent-bar small" aria-hidden="true"></span>
         </div>
         <div class="contact-row">
@@ -142,6 +143,28 @@
 
   </div>
 
+  <button id="site-nav-toggle" class="site-nav-toggle" type="button" aria-haspopup="dialog" aria-controls="site-navigation" aria-expanded="false" hidden>
+    <span>导航</span><span class="nav-menu-icon" aria-hidden="true"></span>
+  </button>
+  <dialog id="site-navigation" class="site-navigation" aria-labelledby="site-navigation-title">
+    <div class="navigation-top">
+      <span class="navigation-brand">empty610<span>.com</span></span>
+      <button id="site-nav-close" class="site-nav-toggle" type="button" aria-label="关闭导航"><span>关闭</span><span class="nav-menu-icon" aria-hidden="true"></span></button>
+    </div>
+    <div class="navigation-content">
+      <div class="navigation-intro"><p class="navigation-kicker">INDEX / EXPLORE</p><h2 id="site-navigation-title">循此探索。</h2><p>关于我，以及正在构建的世界。</p></div>
+      <nav aria-label="个人主页界面导航">
+        <ol class="navigation-links">
+          <li><a href="#about"><span class="navigation-number" aria-hidden="true">01</span><span class="navigation-label">关于<small lang="en">ABOUT</small></span><span class="navigation-arrow" aria-hidden="true">↗</span></a></li>
+          <li><a href="#dc"><span class="navigation-number" aria-hidden="true">02</span><span class="navigation-label">系统作品<small lang="en">SYSTEM WORKS / DC</small></span><span class="navigation-arrow" aria-hidden="true">↗</span></a></li>
+          <li><a href="#venus"><span class="navigation-number" aria-hidden="true">03</span><span class="navigation-label">项目<small lang="en">PROJECTS / VENUS</small></span><span class="navigation-arrow" aria-hidden="true">↗</span></a></li>
+          <li><a href="#contact"><span class="navigation-number" aria-hidden="true">04</span><span class="navigation-label">联系<small lang="en">CONTACT</small></span><span class="navigation-arrow" aria-hidden="true">↗</span></a></li>
+        </ol>
+      </nav>
+    </div>
+    <div class="navigation-bottom"><span>PERSONAL SPACE · EMPTY610</span><span>关于 / 系统作品 / 项目 / 联系</span></div>
+  </dialog>
+
   <!-- 前往 DC 子界面时的短暂传输过渡；脚本失效时链接仍可正常直达。 -->
   <div id="dc-page-transition" class="dc-page-transition" aria-hidden="true">
     <div class="dc-transition-core">
@@ -161,7 +184,8 @@
   </button>
 
   <script src="music.js?v=20260907"></script>
-  <script src="app.js?v=20260908-venus"></script>
+  <script src="app.js?v=20260909-navigation"></script>
+  <script src="navigation.js?v=20260909" defer></script>
   <script type="module" src="venus-preview.js?v=20260908"></script>
 
 </body>

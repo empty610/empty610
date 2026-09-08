@@ -22,9 +22,10 @@ function finish() {
   app.classList.add('is-ready');
   loading.classList.add('is-done');
   setupReveal();
-  if (location.hash === '#dc' || location.hash === '#venus') {
+  if (['#about', '#dc', '#venus', '#contact'].includes(location.hash)) {
     document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'instant', block: 'center' });
   }
+  window.dispatchEvent(new Event('site-ready'));
 }
 
 function wait(ms) {
@@ -121,7 +122,10 @@ function setupEnter() {
       entries.forEach((entry) => {
         const el = entry.target;
         const ratio = entry.intersectionRatio;
-        if (entry.isIntersecting && ratio >= 0.55 && !states.get(el)) {
+        // Long sections on phones cannot occupy 55% of their own total height
+        // in the viewport. Base entry on the smaller of section and screen.
+        const requiredHeight = Math.min(entry.boundingClientRect.height, window.innerHeight) * 0.55;
+        if (entry.isIntersecting && entry.intersectionRect.height >= requiredHeight && !states.get(el)) {
           states.set(el, true);
           el.classList.add('enter');
         } else if ((!entry.isIntersecting || ratio <= 0.05) && states.get(el)) {
@@ -130,7 +134,7 @@ function setupEnter() {
         }
       });
     },
-    { threshold: [0, 0.05, 0.55] }
+    { threshold: Array.from({ length: 21 }, (_,i) => i / 20) }
   );
   sections.forEach((el) => io.observe(el));
 }
