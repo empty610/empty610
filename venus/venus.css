@@ -445,6 +445,8 @@
     .intro-title {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 10px;
       width: 100%;
       padding: 0;
       border: 0;
@@ -459,6 +461,13 @@
       font: 700 10px var(--mono);
       letter-spacing: .18em;
       text-transform: uppercase;
+    }
+
+    .intro-title small {
+      color: #a69989;
+      font: 400 10px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif;
+      letter-spacing: .02em;
+      white-space: nowrap;
     }
 
     .intro-divider {

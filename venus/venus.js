@@ -18,7 +18,7 @@ const TAU=Math.PI*2,CYCLE=583.92,VR=.723,INC=3.394*Math.PI/180,NODE=1.34;
     function frame(t){if(playing){if(last){day+=((t-last)/40)*.55*speed;if(day>=CYCLE)day%=CYCLE;$('day').value=day;render()}last=t}else last=0;requestAnimationFrame(frame)}
     $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'Ⅱ':'▶';$('play').setAttribute('aria-label',playing?'暂停':'播放')};$('reset').onclick=()=>{day=0;$('day').value=0;render()};$('day').oninput=e=>{day=+e.target.value;render()};$('trail-toggle').onchange=e=>$('trail').style.display=e.target.checked?'':'none';document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>{speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>x.classList.toggle('active',x===b))});
     const intro=$('venus-intro'),introToggle=$('intro-toggle');
-    function setIntro(open){intro.classList.toggle('is-open',open);introToggle.setAttribute('aria-expanded',String(open))}
+    function setIntro(open){intro.classList.toggle('is-open',open);introToggle.setAttribute('aria-expanded',String(open));introToggle.setAttribute('aria-label',open?'收起金星介绍':'展开金星介绍');$('intro-toggle-hint').textContent=open?'点此收起介绍':'点此展开介绍'}
     introToggle.onclick=()=>setIntro(!intro.classList.contains('is-open'));setIntro(false);
     const imageDialog=$('image-dialog'),imageDialogImage=$('image-dialog-image'),imageDialogCaption=$('image-dialog-caption');let dialogControlsTimer;
     function revealDialogControls(){clearTimeout(dialogControlsTimer);imageDialog.classList.add('is-controls-visible');if(imageDialog.open)dialogControlsTimer=setTimeout(()=>imageDialog.classList.remove('is-controls-visible'),2000)}
