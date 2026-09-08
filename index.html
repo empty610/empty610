@@ -12,6 +12,7 @@
 
   <!-- 全部使用本地/系统字体，避免第三方字体阻塞首屏渲染。 -->
   <link rel="stylesheet" href="style.css?v=20260907-dc-transition-v3" />
+  <link rel="stylesheet" href="venus-entry.css?v=20260908" />
 </head>
 <body>
   <div id="app" class="board">
@@ -87,7 +88,23 @@
         </div>
       </section>
 
-      <!-- 第四面 -->
+      <!-- Venus 项目入口：独立的 80vh 金星预览。 -->
+      <section id="venus" class="venus-preview" aria-labelledby="venus-title">
+        <div class="venus-preview-copy">
+          <p class="venus-eyebrow">SOLAR LABORATORY / 02</p>
+          <h2 id="venus-title">VENUS<span>金星</span></h2>
+          <p class="venus-preview-description">另一种可能的结局。<br>从一颗行星，理解一个世界。</p>
+          <a class="enter-btn" id="go-venus" href="./venus/" data-transition-label="VENUS // ESTABLISHING LINK"><span>EXPLORE VENUS</span><span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="venus-preview-stage" id="venus-preview-stage" role="img" aria-label="缓慢旋转的金星雷达地表模型">
+          <div class="venus-preview-placeholder" aria-hidden="true"></div>
+          <div id="venus-preview-canvas"></div>
+          <span class="venus-preview-fallback">金星预览暂不可用，可进入项目继续探索。</span>
+        </div>
+        <div class="venus-preview-caption"><span>MAGELLAN RADAR SURFACE</span><span>VENUS PREVIEW · 02</span></div>
+      </section>
+
+      <!-- 第五面 -->
       <section class="section future reveal-fade">
         <h2 class="future-title">未来呢？</h2>
         <p class="future-sub">这里暂时没有更多的内容。</p>
@@ -144,7 +161,8 @@
   </button>
 
   <script src="music.js?v=20260907"></script>
-  <script src="app.js?v=20260907-dc-transition-v3"></script>
+  <script src="app.js?v=20260908-venus"></script>
+  <script type="module" src="venus-preview.js?v=20260908"></script>
 
 </body>
 </html>

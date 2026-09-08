@@ -1,0 +1,11 @@
+/* Shared site navigation and audio controls, without the home page layout. */
+.site-nav { width: min(1180px, 100%); margin: auto; padding: 20px 22px 0; display: flex; justify-content: space-between; align-items: center; gap: 20px; font-size: 10px; letter-spacing: .17em; color: #8a7b6b; }
+.site-nav a { display: flex; align-items: center; gap: 16px; min-height: 44px; color: #665331; text-decoration: none; }
+.site-nav a span { font-size: 10px; letter-spacing: .04em; color: #8a7b6b; }
+.site-nav a:hover { color: #b89438; }
+.music-toggle { position: fixed; right: 18px; bottom: 18px; z-index: 40; width: 44px; height: 44px; border-radius: 50%; border: 1px solid #b8943880; color: #e9e5dc; background: #14120ee6; cursor: pointer; font-size: 20px; display: grid; place-items: center; }
+.music-playing .music-toggle { color: #d9b95a; border-color: #d9b95a; }
+.site-nav a:focus-visible, .music-toggle:focus-visible { outline: 2px solid #b89438; outline-offset: 4px; }
+.app { animation: venus-arrival .5s ease both; }
+@keyframes venus-arrival { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .app { animation: none; } }

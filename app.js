@@ -22,7 +22,9 @@ function finish() {
   app.classList.add('is-ready');
   loading.classList.add('is-done');
   setupReveal();
-  if (location.hash === '#dc') document.getElementById('dc')?.scrollIntoView({ behavior: 'instant', block: 'center' });
+  if (location.hash === '#dc' || location.hash === '#venus') {
+    document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'instant', block: 'center' });
+  }
 }
 
 function wait(ms) {
@@ -193,16 +195,17 @@ window.siteLoader = { setProgress, finish };
 // Directory URLs are canonical on the website; file previews need an HTML file.
 if (location.protocol === 'file:') {
   document.getElementById('go-terminal').href = './delocalized%20configuration%20project/index.html';
+  document.getElementById('go-venus').href = './venus/index.html';
 }
 
 // DC 是一个独立页面。点击入口时先显示极短的传输过渡，避免页面直接切换；
 // 修饰键/非主键点击保留浏览器原生的新标签页和菜单行为。
-const dcTerminalLink = document.getElementById('go-terminal');
+const projectLinks = document.querySelectorAll('#go-terminal, #go-venus');
 const dcPageTransition = document.getElementById('dc-page-transition');
-if (dcTerminalLink && dcPageTransition) {
+if (projectLinks.length && dcPageTransition) {
   let dcNavigationPending = false;
 
-  dcTerminalLink.addEventListener('click', (event) => {
+  projectLinks.forEach((projectLink) => projectLink.addEventListener('click', (event) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return;
     }
@@ -211,20 +214,22 @@ if (dcTerminalLink && dcPageTransition) {
     if (dcNavigationPending) return;
 
     dcNavigationPending = true;
+    dcPageTransition.querySelector('p').textContent = projectLink.dataset.transitionLabel || 'DC // ESTABLISHING LINK';
     // Commit the overlay's initial frame before beginning composited motion.
     // This prevents the first paint from being skipped under a busy first load.
     dcPageTransition.classList.add('is-mounted');
     document.documentElement.classList.add('dc-navigation-active');
+    window.dispatchEvent(new Event('site-navigation'));
 
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         dcPageTransition.classList.add('is-active');
         window.setTimeout(() => {
-          window.location.assign(dcTerminalLink.href);
+          window.location.assign(projectLink.href);
         }, 1000);
       });
     });
-  });
+  }));
 
   // 恢复前进/后退缓存页面时确保遮罩不会残留。
   window.addEventListener('pageshow', () => {
@@ -232,6 +237,7 @@ if (dcTerminalLink && dcPageTransition) {
     dcPageTransition.classList.remove('is-mounted');
     dcPageTransition.classList.remove('is-active');
     document.documentElement.classList.remove('dc-navigation-active');
+    window.dispatchEvent(new Event('site-navigation'));
   });
 }
 
