@@ -57,7 +57,7 @@
       width: min(1180px, 100%);
       min-height: 100vh;
       margin-inline: auto;
-      padding: 26px 0 24px;
+      padding: 14px 0 24px;
     }
 
     .header {
@@ -884,7 +884,7 @@
     }
 
     @media (max-width: 560px) {
-      .app { padding: 12px; }
+      .app { padding: 8px 12px 12px; }
       .header { align-items: flex-start; padding: 12px 14px; }
       .header h1 { font-size: 18px; }
       .header .badge { display: none; }
