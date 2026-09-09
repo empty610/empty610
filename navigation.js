@@ -5,6 +5,7 @@
   const main = document.getElementById('main');
   const links = Array.from(menu.querySelectorAll('nav a'));
   const sections = links.map(link => document.getElementById(link.hash.slice(1)));
+  const darkSectionIds = new Set(['dc', 'venus']);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let idleTimer;
 
@@ -19,6 +20,17 @@
     document.addEventListener(type, revealToggle, { passive: true });
   });
   toggle.addEventListener('focus', revealToggle);
+
+  function updateToggleContrast() {
+    if (toggle.hidden || menu.open) return;
+    const probe = toggle.getBoundingClientRect();
+    const probeY = probe.top + probe.height / 2;
+    const current = sections.find(section => {
+      const box = section.getBoundingClientRect();
+      return box.top <= probeY && box.bottom >= probeY;
+    });
+    toggle.classList.toggle('is-on-dark-background', Boolean(current && darkSectionIds.has(current.id)));
+  }
 
   function updateCurrent() {
     const point = Math.min(innerHeight * .4, 320);
@@ -40,6 +52,7 @@
     toggle.setAttribute('aria-expanded', 'false');
     document.documentElement.classList.remove('site-menu-open');
     revealToggle();
+    updateToggleContrast();
   }
 
   toggle.addEventListener('click', () => {
@@ -62,14 +75,22 @@
     event.preventDefault();
     closeMenu();
     if (location.hash !== link.hash) history.pushState(null, '', link.hash);
-    sections[i].focus({ preventScroll: true });
-    sections[i].scrollIntoView({ behavior: reducedMotion.matches ? 'instant' : 'smooth', block: 'start' });
+    const section = sections[i];
+    section.focus({ preventScroll: true });
+    // Wait until the dialog has released the mobile viewport, then calculate
+    // an absolute target. This keeps the section heading at the real top.
+    requestAnimationFrame(() => {
+      const top = Math.max(0, Math.round(scrollY + section.getBoundingClientRect().top));
+      window.scrollTo({ top, behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+    });
   }));
 
   // The main content is initially hidden. Show the menu only once its targets exist on screen.
-  const ready = () => { toggle.hidden = false; revealToggle(); };
+  const ready = () => { toggle.hidden = false; updateToggleContrast(); revealToggle(); };
   if (!main.hidden) ready();
   window.addEventListener('site-ready', ready, { once: true });
   window.addEventListener('pagehide', () => { closeMenu(); clearTimeout(idleTimer); });
   window.addEventListener('pageshow', closeMenu);
+  window.addEventListener('scroll', updateToggleContrast, { passive: true });
+  window.addEventListener('resize', updateToggleContrast);
 })();

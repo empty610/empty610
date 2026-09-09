@@ -31,11 +31,11 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: #fff;
+  color: #14120e;
   box-shadow: none;
-  mix-blend-mode: difference;
   transition: opacity .25s ease, transform .25s ease;
 }
+#site-nav-toggle.is-on-dark-background { color: #fff; }
 #site-nav-toggle:hover { background: transparent; transform: none; }
 #site-nav-toggle.is-idle-hidden { opacity: 0; transform: translateY(-5px); pointer-events: none; }
 .nav-hamburger { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
