@@ -628,15 +628,6 @@
 
         const back = document.getElementById('terminal-close');
         if (location.protocol === 'file:') back.href = '../index.html#dc';
-        let backTimer;
-        function showBack() {
-            clearTimeout(backTimer);
-            back.classList.remove('is-idle-hidden');
-            backTimer = setTimeout(() => back.classList.add('is-idle-hidden'), 3000);
-        }
-        ['pointermove', 'pointerdown', 'touchstart', 'keydown'].forEach(type =>
-            document.addEventListener(type, showBack, { passive: true }));
-        back.addEventListener('focus', showBack);
         document.addEventListener('keydown', event => {
             if (event.key === 'Escape') back.click();
         });
@@ -644,5 +635,4 @@
             // A fresh entry, including browser Back/Forward, starts at the boot screen.
             if (event.persisted) location.reload();
         });
-        showBack();
 })();

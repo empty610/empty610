@@ -10,7 +10,7 @@
 </head>
 <body data-page="terminal">
   <div id="terminal" class="terminal-overlay">
-    <a id="terminal-close" class="terminal-close" href="../#dc" aria-label="Back to main site" title="Back">
+    <a id="terminal-close" class="terminal-close" href="../#dc" data-idle-hide aria-label="Back to main site" title="Back">
       <svg class="back-u-turn" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M9 5 5 9l4 4M5 9h8a5 5 0 0 1 5 5v1" />
       </svg>
@@ -215,6 +215,7 @@
 
   <audio id="bg-music" src="../ad%20astra.mp3" loop preload="none" hidden></audio>
   <script src="../music.js?v=20260907"></script>
-  <script src="terminal.js?v=20260907" defer></script>
+  <script src="../idle-controls.js?v=20260910" defer></script>
+  <script src="terminal.js?v=20260910-shared-idle" defer></script>
 </body>
 </html>

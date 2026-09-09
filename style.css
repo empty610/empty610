@@ -488,8 +488,9 @@ html.music-playing .music-toggle { color: #d9b95a; border-color: rgba(217, 185, 
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12vh 8vw;
-  margin-block: 6vh;
+  box-sizing: border-box;
+  padding: clamp(72px, 12vh, 150px) 8vw;
+  margin: 0;
   text-align: center;
   background-image: url("backdrop-3.webp");
   background-size: cover;

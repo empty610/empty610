@@ -23,7 +23,11 @@ function finish() {
   loading.classList.add('is-done');
   setupReveal();
   if (['#about', '#dc', '#venus', '#contact'].includes(location.hash)) {
-    document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'instant', block: 'center' });
+    const target = document.getElementById(location.hash.slice(1));
+    target?.scrollIntoView({ behavior: 'instant', block: 'start' });
+    // The browser may process the fragment while the main content is still
+    // hidden. Reapply it on the next frame once its final viewport height exists.
+    requestAnimationFrame(() => target?.scrollIntoView({ behavior: 'instant', block: 'start' }));
   }
   window.dispatchEvent(new Event('site-ready'));
 }

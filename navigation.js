@@ -15,7 +15,7 @@
     idleTimer = window.setTimeout(() => toggle.classList.add('is-idle-hidden'), 2000);
   }
   // Physical input renews the timer; automatic scroll and rendering do not.
-  ['pointermove', 'pointerdown', 'wheel', 'keydown'].forEach(type => {
+  ['pointermove', 'pointerdown', 'touchstart', 'keydown'].forEach(type => {
     document.addEventListener(type, revealToggle, { passive: true });
   });
   toggle.addEventListener('focus', revealToggle);
@@ -49,6 +49,7 @@
     toggle.setAttribute('aria-expanded', 'true');
     document.documentElement.classList.add('site-menu-open');
     closeButton.focus({ preventScroll: true });
+    window.dispatchEvent(new Event('idle-controls-reset'));
   });
   closeButton.addEventListener('click', closeMenu);
   menu.addEventListener('close', closeMenu);

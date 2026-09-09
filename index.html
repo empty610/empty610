@@ -11,9 +11,9 @@
   <link rel="preload" href="ITCAvantGardePro-Bold.otf" as="font" type="font/otf" crossorigin />
 
   <!-- 全部使用本地/系统字体，避免第三方字体阻塞首屏渲染。 -->
-  <link rel="stylesheet" href="style.css?v=20260909-spacing" />
-  <link rel="stylesheet" href="venus-entry.css?v=20260909-spacing" />
-  <link rel="stylesheet" href="navigation.css?v=20260909-idle" />
+  <link rel="stylesheet" href="style.css?v=20260910-viewport-layout" />
+  <link rel="stylesheet" href="venus-entry.css?v=20260910-viewport-layout" />
+  <link rel="stylesheet" href="navigation.css?v=20260910-contrast-back" />
 </head>
 <body>
   <div id="app" class="board">
@@ -59,13 +59,11 @@
         <div class="about-grid">
           <div class="about-text">
             <p>你好，我是empty610。</p>
-            <p>这是我的个人网站，我会在这里持续发布内容，并更新我的作品集与项目。</p>
-            <p>接下来的内容会是一些闲谈。我能接触到游戏《明日方舟》得益于朋友的推荐，通过它，我接触了非常多种的艺术风格，我的作品灵感大部分来自
-                于《明日方舟》，我很感谢鹰角网络产出了这样一款游戏。</p>
-            <p>我还想在这里说一说《少女前线》这款游戏，我很感谢它给我带来的乐趣，它和《明日方舟：终末地》一样，
-                构成了我游戏娱乐的大部分，并深刻地影响了我。
-                接着，请允许我向你推荐漫画《少女的终末旅行》。</p>
-            <p>最后，感谢你阅读我的网站。
+            <p>这是我的个人网站，我会在这里持续发布内容，并更新我的系统作品集与项目。</p>
+            <p>接下来的内容会是一些闲谈。我能接触到游戏《明日方舟》得益于朋友的推荐，通过它，我接触了非常多种的艺术风格，你会看到我的作品灵感大部分来自于《明日方舟》。</p>
+            <p>我还想在这里说一说《少女前线》这款游戏，我很感谢它给我带来的乐趣，它和《明日方舟：终末地》一样，构成了我游戏娱乐的大部分，并深刻地影响了我。
+                接着，请允许我向你推荐漫画《少女的终末旅行》，它引发了一些我的思考。</p>
+            <p>最后，感谢你来到我的网站并观看我发布的内容。
             </p>
         </div>
           <figure class="about-photo">
@@ -82,7 +80,7 @@
             <span class="deloc-line">CONFIGURATION</span>
           </div>
           <p class="deloc-sub">A DISTRIBUTED SPACE INFRASTRUCTURE INITIATIVE</p>
-          <a class="enter-btn" id="go-terminal" href="./delocalized%20configuration%20project/">
+          <a class="enter-btn" id="go-terminal" href="./delocalized configuration project/">
             <span class="btn-text">GO TERMINAL</span>
             <span class="btn-arrow" aria-hidden="true">↗</span>
           </a>
@@ -100,7 +98,7 @@
         <div class="venus-preview-stage" id="venus-preview-stage" role="img" aria-label="缓慢旋转的金星雷达地表模型">
           <div class="venus-preview-placeholder" aria-hidden="true"></div>
           <div id="venus-preview-canvas"></div>
-          <span class="venus-preview-fallback">金星预览暂不可用，可进入项目继续探索。</span>
+          <span class="venus-preview-fallback">金星预览暂不可用，可进入其他项目继续探索。</span>
         </div>
         <div class="venus-preview-caption"><span>MAGELLAN RADAR SURFACE</span><span>VENUS PREVIEW · 02</span></div>
       </section>
@@ -109,9 +107,7 @@
       <section class="section future reveal-fade">
         <h2 class="future-title">未来呢？</h2>
         <p class="future-sub">这里暂时没有更多的内容。</p>
-        <p class="future-body">或许我会在不久之后实装一些项目在这，这会包括一个能帮助你了解太阳系的
-            模型，你可以从这里了解到人类对太阳系各大行星的探索程度与主要的科研成果
-            ，但至少现在，这里还什么都没有。</p>
+        <p class="future-body">或许我会在不久之后实装一些项目在这，这会包括一个能帮助你了解太阳系的模型，以及针对太阳系各大行星的介绍，你或许可以从这里了解到人类对太阳系各大行星的探索程度与主要的科研成果，但至少现在，这里还什么都没有。</p>
       </section>
 
       <!-- 联系区 -->
@@ -149,7 +145,7 @@
   <dialog id="site-navigation" class="site-navigation" aria-labelledby="site-navigation-title">
     <div class="navigation-top">
       <span class="navigation-brand">empty610<span>.com</span></span>
-      <button id="site-nav-close" class="site-nav-toggle" type="button" aria-label="关闭导航"><span>关闭</span><span class="nav-menu-icon" aria-hidden="true"></span></button>
+      <button id="site-nav-close" class="terminal-close" type="button" data-idle-hide aria-label="关闭导航" title="Back"><svg class="back-u-turn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 5 9l4 4M5 9h8a5 5 0 0 1 5 5v1" /></svg><span>BACK</span></button>
     </div>
     <div class="navigation-content">
       <div class="navigation-intro"><p class="navigation-kicker">INDEX / EXPLORE</p><h2 id="site-navigation-title">循此探索。</h2><p>关于我，以及正在构建的世界。</p></div>
@@ -184,8 +180,9 @@
   </button>
 
   <script src="music.js?v=20260907"></script>
-  <script src="app.js?v=20260909-navigation"></script>
-  <script src="navigation.js?v=20260909-idle" defer></script>
+  <script src="app.js?v=20260910-position"></script>
+  <script src="idle-controls.js?v=20260910" defer></script>
+  <script src="navigation.js?v=20260910-position" defer></script>
   <script type="module" src="venus-preview.js?v=20260908"></script>
 
 </body>
