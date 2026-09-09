@@ -6,6 +6,19 @@
   const links = Array.from(menu.querySelectorAll('nav a'));
   const sections = links.map(link => document.getElementById(link.hash.slice(1)));
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let idleTimer;
+
+  function revealToggle() {
+    clearTimeout(idleTimer);
+    toggle.classList.remove('is-idle-hidden');
+    if (toggle.hidden || menu.open) return;
+    idleTimer = window.setTimeout(() => toggle.classList.add('is-idle-hidden'), 2000);
+  }
+  // Physical input renews the timer; automatic scroll and rendering do not.
+  ['pointermove', 'pointerdown', 'wheel', 'keydown'].forEach(type => {
+    document.addEventListener(type, revealToggle, { passive: true });
+  });
+  toggle.addEventListener('focus', revealToggle);
 
   function updateCurrent() {
     const point = Math.min(innerHeight * .4, 320);
@@ -26,11 +39,13 @@
     if (menu.open) menu.close();
     toggle.setAttribute('aria-expanded', 'false');
     document.documentElement.classList.remove('site-menu-open');
+    revealToggle();
   }
 
   toggle.addEventListener('click', () => {
     updateCurrent();
     menu.showModal();
+    clearTimeout(idleTimer);
     toggle.setAttribute('aria-expanded', 'true');
     document.documentElement.classList.add('site-menu-open');
     closeButton.focus({ preventScroll: true });
@@ -51,9 +66,9 @@
   }));
 
   // The main content is initially hidden. Show the menu only once its targets exist on screen.
-  const ready = () => { toggle.hidden = false; };
+  const ready = () => { toggle.hidden = false; revealToggle(); };
   if (!main.hidden) ready();
   window.addEventListener('site-ready', ready, { once: true });
-  window.addEventListener('pagehide', closeMenu);
+  window.addEventListener('pagehide', () => { closeMenu(); clearTimeout(idleTimer); });
   window.addEventListener('pageshow', closeMenu);
 })();

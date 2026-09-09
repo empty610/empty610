@@ -23,6 +23,21 @@
 }
 .site-nav-toggle[hidden] { display: none; }
 .site-nav-toggle:hover { background: #3d3220; transform: translateY(-2px); }
+#site-nav-toggle {
+  min-width: 46px;
+  width: 46px;
+  height: 46px;
+  padding: 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #000;
+  box-shadow: none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+#site-nav-toggle:hover { background: transparent; transform: none; }
+#site-nav-toggle.is-idle-hidden { opacity: 0; transform: translateY(-5px); pointer-events: none; }
+.nav-hamburger { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 .nav-menu-icon { position: relative; display: block; width: 18px; height: 14px; }
 .nav-menu-icon::before, .nav-menu-icon::after {
   position: absolute; content: ''; height: 1px; width: 18px;
