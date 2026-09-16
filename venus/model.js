@@ -60,6 +60,9 @@ export async function mountVenus(stage, mount, { preview = false } = {}) {
           material.map = map;
           material.needsUpdate = true;
           stage.classList.remove('is-error');
+          // Upload the completed texture and paint one real frame before revealing
+          // the canvas, so a blank sphere can never flash on screen.
+          renderer.render(scene, camera);
           stage.classList.add('is-ready');
         },
         undefined,

@@ -46,7 +46,7 @@ function scheduleFinish() {
   const criticalFont = document.fonts?.load
     ? Promise.race([
         document.fonts.load('800 1em "Avant Garde"').catch(() => undefined),
-        wait(700),
+        wait(300),
       ])
     : Promise.resolve();
 

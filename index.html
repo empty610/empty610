@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>empty610's website</title>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; worker-src 'none'; manifest-src 'self'; form-action 'none'; upgrade-insecure-requests" />
-  <script src="page-init.js"></script>
-  <link rel="preload" href="ITCAvantGardePro-Bold.otf" as="font" type="font/otf" crossorigin />
+  <script src="page-init.js" defer></script>
+  <link rel="preload" href="ITCAvantGardePro-Bold.woff2" as="font" type="font/woff2" crossorigin />
 
   <!-- 孤星同款advant garde居然要钱，太痛苦了。 -->
-  <link rel="stylesheet" href="style.css?v=20260910-viewport-layout" />
-  <link rel="stylesheet" href="venus-entry.css?v=20260910-viewport-layout" />
-  <link rel="stylesheet" href="navigation.css?v=20260910-mobile-contrast" />
+  <link rel="stylesheet" href="home.css?v=20260916-loading" />
 </head>
 <body>
   <div id="app" class="board">
@@ -92,7 +90,6 @@
           <a class="enter-btn" id="go-venus" href="./venus/" data-transition-label="VENUS // ESTABLISHING LINK"><span>EXPLORE VENUS</span><span aria-hidden="true">↗</span></a>
         </div>
         <div class="venus-preview-stage" id="venus-preview-stage" role="img" aria-label="缓慢旋转的金星雷达地表模型">
-          <div class="venus-preview-placeholder" aria-hidden="true"></div>
           <div id="venus-preview-canvas"></div>
           <span class="venus-preview-fallback">金星预览暂不可用，可进入其他项目继续探索。</span>
         </div>
@@ -168,18 +165,18 @@
   </div>
 
   <!-- 背景音乐ad astra，来自明日方舟四周年活动《孤星》，版权所属非我所有，仅用于个人网页介绍非商业用途，如有侵权请联系删除 -->
-  <audio id="bg-music" src="ad astra.mp3" loop preload="auto" style="display:none"></audio>
+  <audio id="bg-music" src="ad astra.mp3" loop preload="none" style="display:none"></audio>
 
   <!-- 音乐播放/暂停小按钮 -->
-  <button id="music-toggle" class="music-toggle" type="button" aria-label="播放或暂停音乐" title="音乐">
+  <button id="music-toggle" class="music-toggle" type="button" data-idle-hide aria-label="播放或暂停音乐" aria-pressed="false" title="音乐">
     <span aria-hidden="true">♪</span>
   </button>
 
-  <script src="music.js?v=20260907"></script>
-  <script src="app.js?v=20260910-position"></script>
+  <script src="music.js?v=20260907" defer></script>
+  <script src="app.js?v=20260916-loading" defer></script>
   <script src="idle-controls.js?v=20260910" defer></script>
   <script src="navigation.js?v=20260910-mobile-position" defer></script>
-  <script type="module" src="venus-preview.js?v=20260908"></script>
+  <script type="module" src="venus-preview.js?v=20260916-model-reveal"></script>
 
 </body>
 </html>

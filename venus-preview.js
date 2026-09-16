@@ -7,7 +7,7 @@ async function startPreview() {
   if (started) return;
   started = true;
   try {
-    const { mountVenus } = await import('./venus/model.js');
+    const { mountVenus } = await import('./venus/model.js?v=20260916-model-reveal');
     await mountVenus(stage, mount, { preview: true });
   } catch {
     stage.classList.add('is-error');

@@ -407,10 +407,23 @@
             box-shadow: inset 0 0 0 1px rgba(200,185,165,0.20), 0 4px 20px rgba(60,45,30,0.05);
             position: relative;
         }
-        #three-canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity .45s ease;
+        }
+        .scene-wrapper.is-model-ready #three-canvas {
+            visibility: visible;
+            opacity: 1;
+        }
         #three-canvas:active { cursor: grabbing; }
 
-        .label-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 2; }
+        .label-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 2; visibility: hidden; opacity: 0; transition: opacity .45s ease; }
+        .scene-wrapper.is-model-ready .label-container { visibility: visible; opacity: 1; }
         .tracking-label {
             position: absolute;
             background: rgba(50,45,40,0.85);

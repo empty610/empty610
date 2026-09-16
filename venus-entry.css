@@ -57,19 +57,18 @@
   min-height: 0;
   pointer-events: none;
 }
-#venus-preview-canvas { position: absolute; inset: 0; }
-#venus-preview-canvas canvas { display: block; width: 100%; height: 100%; }
-.venus-preview-placeholder {
+#venus-preview-canvas {
   position: absolute;
-  width: min(36vw, 49svh);
-  aspect-ratio: 1;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #aa783c, #614425 50%, #17120d 85%);
-  opacity: .65;
+  inset: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .45s ease;
 }
-.venus-preview-stage.is-ready .venus-preview-placeholder { display: none; }
+.venus-preview-stage.is-ready #venus-preview-canvas {
+  visibility: visible;
+  opacity: 1;
+}
+#venus-preview-canvas canvas { display: block; width: 100%; height: 100%; }
 .venus-preview-fallback { display: none; position: absolute; bottom: 5%; width: 100%; text-align: center; font-size: 12px; color: #baac97; }
 .venus-preview-stage.is-error .venus-preview-fallback { display: block; }
 .venus-preview-caption {
@@ -92,7 +91,6 @@
   #venus-title span { display: inline-block; margin: 0 0 0 15px; font-size: 14px; vertical-align: middle; }
   .venus-preview-description { margin-top: 20px; font-size: 12px; line-height: 1.9; }
   .venus-preview .enter-btn { margin-top: 22px; padding: 13px 20px; font-size: 10px; }
-  .venus-preview-placeholder { width: min(60vw, 34svh); }
   .venus-preview-caption { bottom: 16px; font-size: 7px; padding-top: 10px; gap: 8px; }
 }
 

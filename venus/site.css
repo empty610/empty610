@@ -15,6 +15,8 @@
 .back-u-turn { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .music-toggle { position: fixed; right: 18px; bottom: 18px; z-index: 40; width: 44px; height: 44px; border-radius: 50%; border: 1px solid #b8943880; color: #e9e5dc; background: #14120ee6; cursor: pointer; font-size: 20px; display: grid; place-items: center; }
 .music-playing .music-toggle { color: #d9b95a; border-color: #d9b95a; }
+.music-toggle { transition: opacity .28s ease; }
+.music-toggle.is-idle-hidden { opacity: 0; pointer-events: none; }
 #venus-back:focus-visible, .music-toggle:focus-visible { outline: 2px solid #b89438; outline-offset: 4px; }
 .app { animation: venus-arrival .5s ease both; }
 @keyframes venus-arrival { from { opacity: 0; } to { opacity: 1; } }

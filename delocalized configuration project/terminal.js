@@ -176,6 +176,7 @@
         // ---------- 3D 场景（保持不变） ----------
         async function startApp() {
             await loadThree();
+            wrapper.classList.remove('is-model-ready');
             const scene = new THREE.Scene();
             scene.background = new THREE.Color('#ece6dc');
 
@@ -221,7 +222,13 @@
             const textureUrl = location.protocol === 'file:'
                 ? globalThis.EARTH_TEXTURE_DATA_URL
                 : '../assets/textures/earth_atmos_2048.jpg';
-            const tex = new THREE.TextureLoader().load(textureUrl);
+            let earthTextureReady = false;
+            const tex = new THREE.TextureLoader().load(
+                textureUrl,
+                () => { earthTextureReady = true; },
+                undefined,
+                () => { earthTextureReady = false; }
+            );
             const earth = new THREE.Mesh(
                 new THREE.SphereGeometry(radius, 64, 64),
                 new THREE.MeshStandardMaterial({ map: tex, roughness: 0.45, metalness: 0.08 })
@@ -596,6 +603,11 @@
                 }
                 updateLabels(delta);
                 renderer.render(scene, camera);
+                // Reveal only after the Earth texture has been uploaded in a complete
+                // scene frame. Until then the wrapper background remains clean.
+                if (earthTextureReady && !wrapper.classList.contains('is-model-ready')) {
+                    wrapper.classList.add('is-model-ready');
+                }
             }
             animate(performance.now());
 
