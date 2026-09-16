@@ -35,9 +35,6 @@
 
     <!-- Main screen (scrollable) -->
     <main id="main" class="main" hidden>
-
-      <!-- 欢迎区：参考图二 WELCOME 欢迎 -->
-      <!-- 隐藏属性由 app.js 加载结束后移除 -->
       <section class="hero reveal-fade">
         <h1 class="hero-title">
           <span class="hero-en">WELCOME</span>
@@ -46,7 +43,7 @@
         <span class="accent-bar" aria-hidden="true"></span>
       </section>
 
-      <!-- 介绍区：参考图一 关于我 -->
+      <!-- 你好，希望你在这里找到一些有趣的内容 =-) -->
       <section id="about" class="section about reveal-fade" tabindex="-1" aria-labelledby="about-title">
         <div class="section-head">
           <span class="section-icon" aria-hidden="true"></span>
@@ -71,7 +68,7 @@
         </div>
       </section>
 
-      <!-- 第三面：lo-fi 底片背景 -->
+      <!-- 系统作品：Delocalized Configuration，背景自孤星改编 -->
       <section id="dc" class="section-3 reveal-fade" tabindex="-1" aria-label="系统作品：Delocalized Configuration">
         <div class="section-3-content">
           <div class="deloc">
@@ -86,12 +83,12 @@
         </div>
       </section>
 
-      <!-- Venus 项目入口：独立的 90–100vh 金星预览。 -->
+      <!-- 金星项目入口 -->
       <section id="venus" class="venus-preview reveal-fade" tabindex="-1" aria-labelledby="venus-title">
         <div class="venus-preview-copy">
           <p class="venus-eyebrow">SOLAR LABORATORY / 02</p>
           <h2 id="venus-title">VENUS<span>金星</span></h2>
-          <p class="venus-preview-description">另一种可能的结局。<br>从一颗行星，理解一个世界。</p>
+          <p class="venus-preview-description">自太阳系宜居带诞生的炼狱。<br>A world of extremes born from the habitable zone.</p>
           <a class="enter-btn" id="go-venus" href="./venus/" data-transition-label="VENUS // ESTABLISHING LINK"><span>EXPLORE VENUS</span><span aria-hidden="true">↗</span></a>
         </div>
         <div class="venus-preview-stage" id="venus-preview-stage" role="img" aria-label="缓慢旋转的金星雷达地表模型">
@@ -102,14 +99,14 @@
         <div class="venus-preview-caption"><span>MAGELLAN RADAR SURFACE</span><span>VENUS PREVIEW · 02</span></div>
       </section>
 
-      <!-- 第五面 -->
+      <!-- 未来 -->
       <section class="section future reveal-fade">
         <h2 class="future-title">未来呢？</h2>
         <p class="future-sub">这里暂时没有更多的内容。</p>
         <p class="future-body">或许我会在不久之后实装一些项目在这，这会包括一个能帮助你了解太阳系的模型，以及针对太阳系各大行星的介绍，你或许可以从这里了解到人类对太阳系各大行星的探索程度与主要的科研成果，但至少现在，这里还什么都没有。</p>
       </section>
 
-      <!-- 联系区 -->
+      <!-- 我会尽力补足那些缺失的内容和联系方式的，请稍等 -->
       <section id="contact" class="section contact reveal" tabindex="-1" aria-labelledby="contact-title">
         <div class="section-head">
           <span class="section-icon" aria-hidden="true"></span>
@@ -160,7 +157,7 @@
     <div class="navigation-bottom"><span>PERSONAL SPACE · EMPTY610</span><span>关于 / 系统作品 / 项目 / 联系</span></div>
   </dialog>
 
-  <!-- 前往 DC 子界面时的短暂传输过渡；脚本失效时链接仍可正常直达。 -->
+  <!-- 前往 DC 子界面时的短暂传输过渡 -->
   <div id="dc-page-transition" class="dc-page-transition" aria-hidden="true">
     <div class="dc-transition-core">
       <span class="dc-transition-orbit dc-transition-orbit-a"></span>
@@ -170,7 +167,7 @@
     </div>
   </div>
 
-  <!-- 背景音乐（循环；跨页面按进度继续） -->
+  <!-- 背景音乐ad astra，来自明日方舟四周年活动《孤星》，版权所属非我所有，仅用于个人网页介绍非商业用途，如有侵权请联系删除 -->
   <audio id="bg-music" src="ad astra.mp3" loop preload="auto" style="display:none"></audio>
 
   <!-- 音乐播放/暂停小按钮 -->

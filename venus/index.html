@@ -8,7 +8,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; worker-src 'none'; manifest-src 'self'; form-action 'none'; upgrade-insecure-requests" />
   <link rel="stylesheet" href="venus.css?v=20260910-layout" />
   <link rel="stylesheet" href="site.css?v=20260910-idle-back" />
-
+<!--这里的东西写得不一定准确，大部份资料来自NASA，我使用Deepseek和ChatGPT补全了一部分内容，如有错误欢迎指点-->
 </head>
 <body data-page="venus">
   <a id="venus-back" href="../#venus" data-idle-hide aria-label="返回个人主页" title="Back"><svg class="back-u-turn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 5 9l4 4M5 9h8a5 5 0 0 1 5 5v1" /></svg><span>BACK</span></a>
@@ -25,11 +25,11 @@
           <button class="atmosphere-profile-tag" type="button" data-image-full="venus-atmosphere-profile.png" data-image-dialog-title="金星大气层纵向剖面" data-image-subtitle="从近地表的高压二氧化碳，到约 80 千米高度的云层与霾层结构。" aria-label="放大金星大气层纵向剖面图并查看说明">
             <span class="atmosphere-kicker">Atmospheric profile</span><img src="venus-atmosphere-profile.png" alt="金星大气层温度、压力、云层与霾层的纵向剖面图" loading="lazy"><strong>金星大气层纵向剖面</strong><small>温度、压力与多层硫酸云的高度分布</small>
           </button>
-          <p id="venus-intro-content">金星，中国古称太白金星，西方以女神维纳斯命名，是太阳系中距离太阳第二近的行星，平均距离太阳约1.082亿千米，也就是大概0.73个天文单位。金星平均半径约为6052km，质量约为4.87 × 10²⁴ kg，地表平均重力加速度约8.87 m/s²,公转周期约224.7地球日，自转周期约243地球日，主要由岩石和金属构成，拥有地幔包裹液态金属核心的分层内部结构，是一颗相当标准的类地行星。</p>
-          <p>严谨地说，你在右侧看到的金星是根据麦哲伦号探测器的雷达遥测数据生成的伪色建模，是人们对真实金星地表的视觉呈现，并不是金星在太空中“用眼睛看起来”的模样。</p>
-          <p>金星的地表温度约为462摄氏度，是太阳系中最热的行星之一。地表大气压约为90个标准大气压。大气的主要成分为CO₂和N₂，SO₂，CO，水蒸气以及少量惰性气体，天空中的厚重云层则主要由硫酸液滴构成，这套大气结构拥有非常强力的温室效应，也直接造成了金星的极端环境。</p>
-          <p>在开始时，我们提到为什么右图看起来“不那么真实”：如果你能进入金星大气层近距离观察金星，你会发现这颗行星被达50~70km的厚重云层覆盖，这也导致为什么右边的贴图是伪色图。用肉眼观察的话，它一般看起来呈现出平滑的淡黄色或乳白色，而且非常明亮，这是因为硫酸云层反射了大量的太阳光，使得其最高视星等达到 -4.9等，成为夜空中除月亮外最醒目的天体。中国古人常说的启明与长庚就分别对应金星明亮与昏暗的时候，你可以在后面找到它的演示。</p>
-          <p>如果你能从太阳上方俯瞰太阳系，你会发现金星是顺时针自转的，与大多数行星的逆时针自转相反，因此你在金星上看到的太阳是西升东落的。而且由于它的自转极其缓慢，在金星上，“一天”甚至比“一年”还要来的长,（这里指一个标准的恒星日，如果你是想在金星上观察完整一次的日出到日落的昼夜变化的话，那大约只要117个地球日即可）这种情况的成因也尚未形成定论。</p>
+          <p id="venus-intro-content">金星，中国古称太白，西方以女神维纳斯命名，是太阳系中距离太阳第二近的行星，平均距离太阳约1.082亿千米，也就是大概0.73个天文单位。金星平均半径约为6052km，质量约为4.87 × 10²⁴ kg，地表平均重力加速度约8.87 m/s²,公转周期约224.7地球日，自转周期约243地球日，主要由岩石和金属构成，拥有地幔包裹液态金属核心的分层内部结构，是一颗相当标准的类地行星。</p>
+          <p>金星的地表岩石是暗灰或红褐色的玄武岩，并不是金色的。至于你在右侧看到的金星则是根据麦哲伦号探测器的雷达遥测数据生成的伪色建模，是人们对真实金星地表的视觉呈现，并不是金星在太空中“用眼睛看起来”的模样，我们会在后面讲到为什么金星看起来是金色的。</p>
+          <p>金星的地表温度约为462摄氏度，是太阳系中最热的行星之一（如果考虑平均气温，则金星将当之无愧地成为太阳系最热的行星）。地表大气压约为90个标准大气压。大气的主要成分为CO₂和N₂，SO₂，CO，水蒸气以及少量惰性气体，天空中的厚重云层则主要由硫酸液滴构成，这套大气结构拥有非常强力的温室效应，也直接造成了金星的极端环境。</p>
+          <p>在开始时，我们提到为什么右图看起来“不那么真实”：如果你能进入金星大气层近距离观察金星，你会发现这颗行星被达50~70km的厚重云层覆盖，这种云层选择性地过滤了阳光，让照在地表的“阳光”变为了橙黄色，将暗色的岩石渲染成了黄褐色，这也导致为什么右边的贴图是伪色图。用肉眼观察的话，它一般看起来呈现出平滑的淡黄色或乳白色，这也是为什么人们称其为金星。而且这种反射光非常明亮，这是因为硫酸云层反射了大量的太阳光，使得其最高视星等达到 -4.9等，成为夜空中除月亮外最醒目的天体。中国古人常说的启明与长庚就分别对应金星清晨见于东方与黄昏见于西方的时候，你可以在后面找到它的演示。</p>
+          <p>如果你能从黄道面上方，太阳北极俯瞰太阳系，你会发现金星是顺时针自转的，与大多数行星的逆时针自转相反，因此你在金星上看到的太阳是西升东落的。而且由于它的自转极其缓慢，在金星上，“一天”甚至比“一年”还要来的长,（这里指一个标准的恒星日，如果你是想在金星上观察完整一次的日出到日落的昼夜变化的话，那大约只要117个地球日即可）这种情况的成因也尚未形成定论。</p>
           <p>金星的内部热量释放不同于地球，主要通过地幔对流，上涌到地表凝固来释放热量，这也造就了金星表面不同于地球的各种地质地貌结构，你可以在下面找到一部分金星表面很有趣的地质特征，更有趣的是金星没有表现出清晰的板块构造系统，但仍然拥有类似地球造山带的典型地貌特征；以及在拥有近地质量与活跃地幔昭示其液态金属核心的情况下，金星的内禀磁场几乎不存在。</p>
           <p>倘若你愿意比较一下金星与地球的初始条件，你会发现两者可能具有一个相似的起点:含水的岩石行星，可这样的开始却演化出了截然不同的结局。地球是生命的摇篮，而金星则成了生灵的止境。</p>
           <p>为什么会有这样截然不同的差异呢？为什么金星会变成这样呢？究竟在哪里出现了分歧？生命的诞生在星球表面的演化扮演了怎样的角色？人类的活动是否会让地球也迈向金星的道路？我同样十分好奇，但对现在的人类来说，这都是留待未来去探索的问题。</p>
@@ -76,7 +76,7 @@
         </article>
         <article class="terrain-card" data-image-full="venus-ishtar-terra.jpg" aria-label="放大大型高地与大陆图片，并阅读介绍">
           <figure><img src="venus-ishtar-terra.jpg" alt="NASA Pioneer Venus 高程图中的 Ishtar Terra 高地" loading="lazy"></figure>
-          <div class="terrain-copy"><span class="terrain-kicker">Highland plateau</span><h3>大型高地与“大陆”</h3><p>称其为“大陆”并不准确，它实际上是人们对金星表面几处明显高于金星平均半径的大型高地的习惯性称呼。它们规模巨大且地形复杂，是金星地壳增厚与强烈地质活动变形的共同结果，主要特点是地势高于金星平均半径，该区域地壳明显增厚。</p>
+          <div class="terrain-copy"><span class="terrain-kicker">Highland plateau</span><h3>大型高地与“大陆”</h3><p>称其为“大陆”并不准确，它实际上是人们对金星表面几处明显高于金星平均半径的大型高地的习惯性称呼。它们规模巨大且地形复杂，是金星地壳增厚与强烈地质活动变形的共同结果，主要特点是地势高于金星平均半径与区域地壳明显增厚。</p>
             <p>比较有代表性的高地为其北半球高纬度地区的伊什塔尔高地与阿弗洛狄忒高地，主流观点认为其成因为类似地球造山带的地壳横向挤压和山体隆升。实际由于地形复杂（包含了多种次级地貌单元），对实际情况的解释尚存在地幔对流上升，大规模火山作用等不少争议观点。</p><small class="terrain-source">Pioneer Venus · NASA/JPL/USGS · PIA00093</small></div>
         </article>
         <article class="terrain-card" data-image-full="venus-yavine-corona.jpg" aria-label="放大冠状构造图片，并阅读介绍">
@@ -112,7 +112,7 @@
       <aside class="panel"><div class="heading"><div><span class="idx">05</span><h2>构型</h2></div><p>跳转</p></div><div id="events" class="events"></div></aside>
     </section>
     <section class="panel timeline"><div class="transport"><button id="play" class="btn play" aria-label="播放">▶</button><button id="reset" class="btn" aria-label="回到上合">↺</button></div><div class="timeline-main"><div class="timeline-meta"><span>模拟时间</span><strong id="day-label">第 92 天</strong></div><input id="day" class="range" type="range" min="0" max="583.92" step="0.02" value="92"><div class="labels"><span>上合</span><span>东大距</span><span>下合</span><span>西大距</span><span>上合</span></div></div><div class="cycle"><span>回归</span><strong>583.92</strong><small>地球日</small></div></section>
-    <section class="panel model"><i>ⓘ</i><div><strong>对这个模型的说明与免责声明</strong><p>该项目旨在科普有关于金星的天文学知识，其轨道按平均半径绘制，并在建模中忽略了很小的离心率；视星等来自距离与相位角的经验光度函数，且模型较为理想，和实际情况存在出入。</p><p>介绍的数据与资料来自NASA：先驱者轨道器，先驱者多轨道探测器，哈雷探测器，麦哲伦号；ESA：金星快车；JAXA：晓号；NPO Lavochkin：金星系列等探测器。</p><p>这个演示仅适合解释规律，不能替代指定日期和地点的精密星历。empty610不对使用本网站演示数据观测失败的结果负任何责任。</p></div><div class="speed"><span>播放速度</span><button data-speed=".5">0.5×</button><button class="active" data-speed="1">1×</button><button data-speed="2">2×</button></div></section>
+    <section class="panel model"><i>ⓘ</i><div><strong>对这个模型的说明与免责声明</strong><p>该项目旨在科普有关于金星的天文学知识，其轨道按平均半径绘制，并在建模中忽略了很小的离心率；视星等来自距离与相位角的经验光度函数，且模型较为理想，和实际情况存在出入。</p><p>介绍的数据与资料来自NASA：先驱者轨道器，先驱者多轨道探测器，哈雷探测器，麦哲伦号；ESA：金星快车；JAXA：晓号；NPO Lavochkin：金星系列等探测器。</p><p>这个演示仅适合解释规律，不能替代指定日期和地点的精密星历。empty610不对使用本网站演示数据观测失败的结果负任何责任。同时，如果你发现了任何问题，你可以在联系面找到empty610的联系方式。</p></div><div class="speed"><span>播放速度</span><button data-speed=".5">0.5×</button><button class="active" data-speed="1">1×</button><button data-speed="2">2×</button></div></section>
   </main>
   <dialog class="image-dialog" id="image-dialog" aria-labelledby="image-dialog-caption">
     <button class="image-dialog-close" id="image-dialog-close" type="button" aria-label="关闭图片预览">×</button>
