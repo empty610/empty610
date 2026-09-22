@@ -8,7 +8,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; worker-src 'none'; manifest-src 'self'; form-action 'none'; upgrade-insecure-requests" />
   <link rel="stylesheet" href="venus.css?v=20260910-layout" />
   <link rel="stylesheet" href="site.css?v=20260916-music-idle" />
-<!--这里的东西写得不一定准确，大部份资料来自NASA，我使用Deepseek和ChatGPT补全了一部分内容，如有错误欢迎指点-->
+<!--这里的东西写得不一定准确，大部份资料来自NASA，我使用Deepseek和ChatGPT补全了一部分内容并完成了标签的搭建，如有错误欢迎指点-->
 </head>
 <body data-page="venus">
   <a id="venus-back" href="../#venus" data-idle-hide aria-label="返回个人主页" title="Back"><svg class="back-u-turn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 5 9l4 4M5 9h8a5 5 0 0 1 5 5v1" /></svg><span>BACK</span></a>
@@ -113,7 +113,7 @@
       <aside class="panel"><div class="heading"><div><span class="idx">05</span><h2>构型</h2></div><p>跳转</p></div><div id="events" class="events"></div></aside>
     </section>
     <section class="panel timeline"><div class="transport"><button id="play" class="btn play" aria-label="播放">▶</button><button id="reset" class="btn" aria-label="回到上合">↺</button></div><div class="timeline-main"><div class="timeline-meta"><span>模拟时间</span><strong id="day-label">第 92 天</strong></div><input id="day" class="range" type="range" min="0" max="583.92" step="0.02" value="92"><div class="labels"><span>上合</span><span>东大距</span><span>下合</span><span>西大距</span><span>上合</span></div></div><div class="cycle"><span>回归</span><strong>583.92</strong><small>地球日</small></div></section>
-    <section class="panel model"><i>ⓘ</i><div><strong>对这个模型的说明与免责声明</strong><p>该项目旨在科普有关于金星的天文学知识，其轨道按平均半径绘制，并在建模中忽略了很小的离心率；视星等来自距离与相位角的经验光度函数，且模型较为理想，和实际情况存在出入。</p><p>介绍的数据与资料来自NASA：先驱者轨道器，先驱者多轨道探测器，哈雷探测器，麦哲伦号；ESA：金星快车；JAXA：晓号；NPO Lavochkin：金星系列等探测器。</p><p>这个演示仅适合解释规律，不能替代指定日期和地点的精密星历。empty610不对使用本网站演示数据观测失败的结果负任何责任。同时，如果你发现了任何问题，你可以在联系面找到empty610的联系方式。</p></div><div class="speed"><span>播放速度</span><button data-speed=".5">0.5×</button><button class="active" data-speed="1">1×</button><button data-speed="2">2×</button></div></section>
+    <section class="panel model"><i>ⓘ</i><div><strong>对这个模型的说明与免责声明</strong><p>该项目旨在科普有关于金星的天文学知识，其轨道按平均半径绘制，并在建模中忽略了很小的离心率；视星等来自距离与相位角的经验光度函数，且模型较为理想，和实际情况存在出入。</p><p>介绍的数据与资料来自NASA：先驱者轨道器，先驱者多轨道探测器，哈雷探测器，麦哲伦号；ESA：金星快车；JAXA：晓号；NPO Lavochkin：金星系列等探测器。</p><p>这个演示仅适合解释规律，不能替代指定日期和地点的精密星历。empty610不对使用本网站演示数据观测失败的结果负任何责任。同时，如果你发现了任何事实或浏览问题，能得到你的反馈我将不胜荣幸。</p></div><div class="speed"><span>播放速度</span><button data-speed=".5">0.5×</button><button class="active" data-speed="1">1×</button><button data-speed="2">2×</button></div></section>
   </main>
   <dialog class="image-dialog" id="image-dialog" aria-labelledby="image-dialog-caption">
     <button class="image-dialog-close" id="image-dialog-close" type="button" aria-label="关闭图片预览">×</button>

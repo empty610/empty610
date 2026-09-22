@@ -1,33 +1,13 @@
-let enginePromise;
-function loadScript(path) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = new URL(path, import.meta.url).href;
-    script.onload = resolve;
-    script.onerror = () => reject(new Error('Unable to load Venus renderer'));
-    document.head.append(script);
-  });
-}
-async function loadEngine() {
-  if (!enginePromise) {
-    enginePromise = (async () => {
-      if (!window.THREE) await loadScript('../vendor/three/build/three.min.js');
-      if (!window.OrbitControls) await loadScript('../vendor/three/examples/jsm/controls/OrbitControls.global.js');
-      return window.THREE;
-    })();
-  }
-  return enginePromise;
-}
+(function(){
 
-// Share the project's original globe, surface map and glow with the home preview.
-export async function mountVenus(stage, mount, { preview = false, surface = './venus-surface.jpg', tilt = 177.4 } = {}) {
-  try {
-    const THREE = await loadEngine();
-    const OrbitControls = window.OrbitControls;
+    const stage = document.getElementById('mars-stage');
+    const mount = document.getElementById('mars-3d');
+    stage.classList.add('model-visual-pending');
 
+    try {
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(38, 1, .1, 100);
-      camera.position.set(0, .08, 4.25);
+      camera.position.set(0, .08, 4.8);
 
       const renderer = new THREE.WebGLRenderer({
         antialias: (window.devicePixelRatio || 1) <= 1.25,
@@ -37,33 +17,67 @@ export async function mountVenus(stage, mount, { preview = false, surface = './v
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.15));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.08;
+      renderer.toneMappingExposure = 1.12;
       mount.appendChild(renderer.domElement);
 
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let modelLoaded = false;
+      let revealFrame = 0;
+      let revealRequested = false;
+      const setModelView = active => {
+        cancelAnimationFrame(revealFrame);
+        revealRequested = active && modelLoaded;
+        stage.classList.toggle('model-view-leaving', !active && modelLoaded);
+        stage.classList.remove('model-view-active');
+        if (!active || !modelLoaded) return;
+        stage.classList.remove('model-view-leaving');
+        if (reducedMotion.matches) {
+          stage.classList.add('model-view-active');
+          revealRequested = false;
+          return;
+        }
+        // Reveal only after a textured frame has actually reached the canvas.
+      };
+      window.MarsModelView = {
+        enter: () => setModelView(true),
+        exit: () => setModelView(false),
+        get loaded(){ return modelLoaded; }
+      };
+
       const world = new THREE.Group();
-      world.rotation.z = THREE.MathUtils.degToRad(tilt);
+      world.rotation.z = THREE.MathUtils.degToRad(25.19);
       scene.add(world);
 
-      const material = new THREE.MeshBasicMaterial({
+      const surfaceMaterialOptions = {
         color: 0xffffff,
-        toneMapped: false
+        roughness: .88,
+        metalness: 0,
+        emissive: 0xffffff,
+        emissiveIntensity: .2
+      };
+      const material = new THREE.MeshStandardMaterial({
+        ...surfaceMaterialOptions,
+        color: 0xffcdb6,
+        emissive: 0xffcdb6
       });
       const sphere = new THREE.Mesh(new THREE.SphereGeometry(1.34, 64, 64), material);
       world.add(sphere);
 
-      const textureSource = new URL(surface, import.meta.url).href;
+      const textureSource = window.MARS_TEXTURE_DATA;
+      if (!textureSource) throw new Error('Embedded Mars texture is unavailable');
       const texture = new THREE.TextureLoader().load(
         textureSource,
         map => {
           map.colorSpace = THREE.SRGBColorSpace;
           map.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 4);
           material.map = map;
+          material.emissiveMap = map;
           material.needsUpdate = true;
           stage.classList.remove('is-error');
-          // Upload the completed texture and paint one real frame before revealing
-          // the canvas, so a blank sphere can never flash on screen.
-          renderer.render(scene, camera);
-          stage.classList.add('is-ready');
+          modelLoaded = true;
+          stage.classList.remove('model-visual-pending');
+          stage.classList.add('model-visual-ready');
+          if (!stage.hidden) setModelView(true);
         },
         undefined,
         () => stage.classList.add('is-error')
@@ -71,11 +85,11 @@ export async function mountVenus(stage, mount, { preview = false, surface = './v
       texture.colorSpace = THREE.SRGBColorSpace;
 
       const atmosphere = new THREE.Mesh(
-        new THREE.SphereGeometry(1.39, 40, 40),
+        new THREE.SphereGeometry(1.355, 40, 40),
         new THREE.MeshBasicMaterial({
           color: 0xf0b458,
           transparent: true,
-          opacity: .045,
+          opacity: .012,
           side: THREE.FrontSide,
           blending: THREE.AdditiveBlending,
           depthWrite: false
@@ -84,7 +98,7 @@ export async function mountVenus(stage, mount, { preview = false, surface = './v
       world.add(atmosphere);
 
       const glow = new THREE.Mesh(
-        new THREE.SphereGeometry(1.47, 40, 40),
+        new THREE.SphereGeometry(1.38, 40, 40),
         new THREE.ShaderMaterial({
           transparent: true,
           side: THREE.BackSide,
@@ -108,44 +122,44 @@ export async function mountVenus(stage, mount, { preview = false, surface = './v
             void main() {
               vec3 viewDirection = normalize(cameraPosition - vWorldPosition);
               float rim = pow(1.0 - max(dot(vNormal, viewDirection), 0.0), 2.8);
-              gl_FragColor = vec4(glowColor, rim * 0.24);
+              gl_FragColor = vec4(glowColor, rim * 0.075);
             }
           `
         })
       );
       world.add(glow);
 
-      scene.add(new THREE.HemisphereLight(0xfff4df, 0x6c4b2d, 1.8));
-      const keyLight = new THREE.DirectionalLight(0xfff1cf, 4.3);
+      scene.add(new THREE.HemisphereLight(0xfff4df, 0x62544b, 1.75));
+      const keyLight = new THREE.DirectionalLight(0xfff1e7, 2.0);
       keyLight.position.set(-3.6, 2.1, 4.8);
       scene.add(keyLight);
-      const rimLight = new THREE.DirectionalLight(0x8bc8dd, 1.35);
+      const rimLight = new THREE.DirectionalLight(0x8bc8dd, .35);
       rimLight.position.set(4, -.8, -2.2);
       scene.add(rimLight);
 
       const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enabled = !preview;
-      controls.enableDamping = !preview;
+      controls.enableDamping = true;
       controls.dampingFactor = .075;
       controls.enablePan = false;
       controls.minDistance = 2.7;
       controls.maxDistance = 6;
       controls.autoRotate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       controls.autoRotateSpeed = .55;
+      const rotationButton = document.getElementById('rotation-toggle');
+      function syncRotationButton(){ rotationButton.textContent=controls.autoRotate?'暂停自转':'自动旋转'; rotationButton.setAttribute('aria-pressed',String(!controls.autoRotate)); }
+      rotationButton.onclick=()=>{controls.autoRotate=!controls.autoRotate;syncRotationButton()};
+      syncRotationButton();
       controls.rotateSpeed = 1.2;
       controls.zoomSpeed = .9;
+
+      const moons=window.setupMarsMoons({scene,camera,renderer,controls,world,sphere,stage,mount,surfaceMaterialOptions});
 
       const resize = () => {
         const width = Math.max(mount.clientWidth, 1);
         const height = Math.max(mount.clientHeight, 1);
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
-        // Fit the globe to the narrower field of view, including portrait phones.
-        const halfFov = THREE.MathUtils.degToRad(camera.fov / 2);
-        const angle = Math.min(halfFov, Math.atan(Math.tan(halfFov) * camera.aspect));
-        const fitDistance = 1.60 / Math.sin(angle);
-        camera.position.setLength(fitDistance);
-        controls.maxDistance = Math.max(6, fitDistance * 1.6);
+        camera.fov = camera.aspect < 1 ? THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(19)) / camera.aspect)) : 38;
         camera.updateProjectionMatrix();
       };
       const resizeObserver = new ResizeObserver(resize);
@@ -156,22 +170,28 @@ export async function mountVenus(stage, mount, { preview = false, surface = './v
       let isRunning = false;
       let animationFrame = 0;
       let lastRenderTime = 0;
-      const frameInterval = 1000 / (preview ? 30 : 60);
+      const frameInterval = 1000 / 40;
       const animate = time => {
         if (!isRunning) return;
         animationFrame = requestAnimationFrame(animate);
         if (time - lastRenderTime < frameInterval) return;
-        const delta = Math.min((time - lastRenderTime) / 1000, .05);
         lastRenderTime = time;
-        controls.update(delta);
+        moons.beforeFrame(time);
+        controls.update();
         renderer.render(scene, camera);
+        moons.afterFrame();
+        if (revealRequested && !stage.hidden) {
+          revealRequested = false;
+          revealFrame = requestAnimationFrame(() => {
+            revealFrame = requestAnimationFrame(() => stage.classList.add('model-view-active'));
+          });
+        }
       };
 
       const syncAnimation = () => {
-        const shouldRun = isInView && !document.hidden && !document.documentElement.classList.contains('dc-navigation-active');
+        const shouldRun = isInView && !document.hidden;
         if (shouldRun && !isRunning) {
           isRunning = true;
-          lastRenderTime = performance.now();
           animationFrame = requestAnimationFrame(animate);
         } else if (!shouldRun && isRunning) {
           isRunning = false;
@@ -185,11 +205,10 @@ export async function mountVenus(stage, mount, { preview = false, surface = './v
       }, { rootMargin: '120px 0px' });
       visibilityObserver.observe(stage);
       document.addEventListener('visibilitychange', syncAnimation);
-      window.addEventListener('site-navigation', syncAnimation);
-      window.addEventListener('pageshow', syncAnimation);
       syncAnimation();
-  } catch (error) {
-    stage.classList.add('is-error');
-    console.error('Venus engine unavailable:', error);
-  }
-}
+    } catch (error) {
+      console.error('Mars 3D model failed to initialize:', error);
+      stage.classList.add('is-error');
+    }
+  
+})();

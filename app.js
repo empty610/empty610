@@ -22,7 +22,7 @@ function finish() {
   app.classList.add('is-ready');
   loading.classList.add('is-done');
   setupReveal();
-  if (['#about', '#dc', '#venus', '#contact'].includes(location.hash)) {
+  if (['#about', '#dc', '#venus', '#mars', '#contact'].includes(location.hash)) {
     const target = document.getElementById(location.hash.slice(1));
     target?.scrollIntoView({ behavior: 'instant', block: 'start' });
     // The browser may process the fragment while the main content is still
@@ -204,11 +204,12 @@ window.siteLoader = { setProgress, finish };
 if (location.protocol === 'file:') {
   document.getElementById('go-terminal').href = './delocalized%20configuration%20project/index.html';
   document.getElementById('go-venus').href = './venus/index.html';
+  document.getElementById('go-mars').href = './mars/index.html';
 }
 
 // DC 是一个独立页面。点击入口时先显示极短的传输过渡，避免页面直接切换；
 // 修饰键/非主键点击保留浏览器原生的新标签页和菜单行为。
-const projectLinks = document.querySelectorAll('#go-terminal, #go-venus');
+const projectLinks = document.querySelectorAll('#go-terminal, #go-venus, #go-mars');
 const dcPageTransition = document.getElementById('dc-page-transition');
 if (projectLinks.length && dcPageTransition) {
   let dcNavigationPending = false;
