@@ -344,6 +344,37 @@
 
     .terrain-copy { padding: 12px 13px 13px; }
 
+    .terrain-grid { align-items: start; }
+    .terrain-card.has-disclosure:not(.is-expanded) .terrain-description > p:first-child {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .terrain-card.has-disclosure:not(.is-expanded) .terrain-description > p ~ p { display: none; }
+    .terrain-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      min-height: 44px;
+      margin-top: 6px;
+      padding: 8px 0;
+      border: 0;
+      border-top: 1px solid var(--line);
+      background: transparent;
+      color: var(--gold);
+      font: inherit;
+      font-size: 11px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .terrain-toggle::after { content: '＋'; }
+    .terrain-toggle[aria-expanded="true"]::after { content: '−'; }
+    .terrain-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
     .terrain-kicker {
       display: block;
       margin-bottom: 5px;

@@ -96,8 +96,25 @@
     }
     caption.replaceChildren(content);
   }
-  function openImage(card) { dialogImage.src=card.dataset.imageFull;dialogImage.alt=card.querySelector('img').alt;const copy=card.querySelector('.terrain-copy');if(copy)caption.innerHTML=copy.outerHTML;else formatLandformCaption(card.dataset.imageCaption);dialog.showModal();dialog.classList.add('is-controls-visible'); }
+  function openImage(card) { dialogImage.src=card.dataset.imageFull;dialogImage.alt=card.querySelector('img').alt;const copy=card.querySelector('.terrain-copy');if(copy){const fullCopy=copy.cloneNode(true);fullCopy.querySelector('.terrain-toggle')?.remove();fullCopy.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));caption.replaceChildren(fullCopy)}else formatLandformCaption(card.dataset.imageCaption);dialog.showModal();dialog.classList.add('is-controls-visible'); }
   document.querySelectorAll('[data-image-full]').forEach(card=>{card.onclick=e=>{if(!e.target.closest('a'))openImage(card)};if(card.classList.contains('terrain-card')){card.tabIndex=0;card.setAttribute('role','button');card.addEventListener('keydown',e=>{if(e.target===card && (e.key==='Enter'||e.key===' ')){e.preventDefault();openImage(card)}})}});
+  document.querySelectorAll('.terrain-grid .terrain-card').forEach((card,index)=>{
+    const copy=card.querySelector('.terrain-copy'),paragraphs=copy.querySelectorAll(':scope > p');
+    if(!paragraphs.length)return;
+    const description=document.createElement('div');
+    description.className='terrain-description';description.id=`mars-terrain-description-${index+1}`;
+    paragraphs[0].before(description);paragraphs.forEach(p=>description.append(p));
+    const toggle=document.createElement('button');
+    toggle.type='button';toggle.className='terrain-toggle';toggle.textContent='展开介绍';
+    toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls',description.id);
+    toggle.setAttribute('aria-label',`展开${copy.querySelector('h3').textContent}介绍`);
+    toggle.addEventListener('click',event=>{
+      event.stopPropagation();const open=card.classList.toggle('is-expanded');
+      toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'收起介绍':'展开介绍';
+      toggle.setAttribute('aria-label',`${open?'收起':'展开'}${copy.querySelector('h3').textContent}介绍`);
+    });
+    description.after(toggle);card.classList.add('has-disclosure');
+  });
   $('image-dialog-close').onclick=()=>dialog.close();dialog.onclick=e=>{if(e.target===dialog)dialog.close()};
   window.MarsOrbitControl={CYCLE,getDay:()=>day,setDay,toggle:()=>setPlaying(!playing),setPlaying,isPlaying:()=>playing};
   buildStatic();render();requestAnimationFrame(frame);
