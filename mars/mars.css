@@ -692,7 +692,7 @@
       border-radius: 14px;
       background:
         linear-gradient(180deg, rgba(5, 8, 14, .14), rgba(4, 6, 11, .38)),
-        url("assets/milky-way-2mass.jpg") center 48% / cover no-repeat,
+        url("../venus/milky-way-2mass.jpg") center 48% / cover no-repeat,
         #080b12;
       box-shadow: inset 0 0 44px rgba(0, 0, 0, .36);
     }
@@ -933,7 +933,7 @@
     .planet-stage.is-error #mars-3d { display:none; }
     .image-dialog-close { opacity:1 !important; pointer-events:auto !important; }
     .terrain-source { line-height:1.6; }
-    .sky-stage { background:linear-gradient(rgba(18,23,29,.75),rgba(18,23,29,.8)),url('assets/milky-way-2mass.jpg') center/cover; }
+    .sky-stage { background:linear-gradient(rgba(18,23,29,.75),rgba(18,23,29,.8)),url('../venus/milky-way-2mass.jpg') center/cover; }
     #sky-status { fill:#f1b783; }
     .timeline .labels { position:relative; height:13px; }
     .timeline .labels span { position:absolute; transform:translateX(-50%); }

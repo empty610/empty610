@@ -1,7 +1,7 @@
 .sky-panel .sky-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:15px 20px 0; color:var(--muted); font-size:11px; }
 .sky-toolbar i { font-style:normal; margin:0 7px; opacity:.5; }
 .sky-toolbar #sky-status { color:#a55335; font-weight:600; }
-.sky-panel .sky-stage { background:linear-gradient(180deg,rgba(5,8,17,.05),rgba(5,8,17,.12)),url('assets/milky-way-2mass.jpg') center / cover no-repeat,#090e1b; margin-top:12px; }
+.sky-panel .sky-stage { background:linear-gradient(180deg,rgba(5,8,17,.05),rgba(5,8,17,.12)),url('../venus/milky-way-2mass.jpg') center / cover no-repeat,#090e1b; margin-top:12px; }
 .sky-panel .sky-stage svg { width:100%; height:auto; aspect-ratio:12/5; }
 .sky-panel .skytext { font-size:11px; stroke:#090e1b; stroke-width:3px; }
 #sky-full-path { fill:none; stroke:#d8e7ed; stroke-width:1.6; stroke-dasharray:3 5; }
