@@ -23,8 +23,25 @@ const TAU=Math.PI*2,CYCLE=583.92,VR=.723,INC=3.394*Math.PI/180,NODE=1.34;
     const imageDialog=$('image-dialog'),imageDialogImage=$('image-dialog-image'),imageDialogCaption=$('image-dialog-caption');let dialogControlsTimer;
     function revealDialogControls(){clearTimeout(dialogControlsTimer);imageDialog.classList.add('is-controls-visible');if(imageDialog.open)dialogControlsTimer=setTimeout(()=>imageDialog.classList.remove('is-controls-visible'),2000)}
     function closeImageDialog(){clearTimeout(dialogControlsTimer);imageDialog.classList.remove('is-controls-visible');imageDialog.close()}
-    function openImageDialog(card){imageDialogImage.src=card.dataset.imageFull;imageDialogImage.alt=card.querySelector('img').alt;const explanation=card.querySelector('.terrain-copy'),dialogTitle=card.dataset.imageDialogTitle;if(explanation)imageDialogCaption.innerHTML=explanation.outerHTML;else if(dialogTitle)imageDialogCaption.innerHTML=`<strong class="dialog-title">${dialogTitle}</strong><span class="dialog-subtitle">${card.dataset.imageSubtitle}</span>`;else imageDialogCaption.textContent=card.dataset.imageCaption;imageDialog.showModal();revealDialogControls()}
-    document.querySelectorAll('[data-image-full]').forEach(card=>{card.onclick=()=>openImageDialog(card);if(card.classList.contains('terrain-card')){card.tabIndex=0;card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openImageDialog(card)}})}});
+    function openImageDialog(card){imageDialogImage.src=card.dataset.imageFull;imageDialogImage.alt=card.querySelector('img').alt;const explanation=card.querySelector('.terrain-copy'),dialogTitle=card.dataset.imageDialogTitle;if(explanation){const copy=explanation.cloneNode(true);copy.querySelector('.terrain-toggle')?.remove();copy.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));imageDialogCaption.replaceChildren(copy)}else if(dialogTitle)imageDialogCaption.innerHTML=`<strong class="dialog-title">${dialogTitle}</strong><span class="dialog-subtitle">${card.dataset.imageSubtitle}</span>`;else imageDialogCaption.textContent=card.dataset.imageCaption;imageDialog.showModal();revealDialogControls()}
+    document.querySelectorAll('[data-image-full]').forEach(card=>{card.onclick=()=>openImageDialog(card);if(card.classList.contains('terrain-card')){card.tabIndex=0;card.addEventListener('keydown',e=>{if(e.target===card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openImageDialog(card)}})}});
+    document.querySelectorAll('.terrain-grid .terrain-card').forEach((card,index)=>{
+      const copy=card.querySelector('.terrain-copy'),paragraphs=copy.querySelectorAll(':scope > p');
+      if(!paragraphs.length)return;
+      const description=document.createElement('div');
+      description.className='terrain-description';description.id=`terrain-description-${index+1}`;
+      paragraphs[0].before(description);paragraphs.forEach(p=>description.append(p));
+      const toggle=document.createElement('button');
+      toggle.type='button';toggle.className='terrain-toggle';toggle.textContent='展开介绍';
+      toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls',description.id);
+      toggle.setAttribute('aria-label',`展开${copy.querySelector('h3').textContent}介绍`);
+      toggle.addEventListener('click',event=>{
+        event.stopPropagation();const open=card.classList.toggle('is-expanded');
+        toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'收起介绍':'展开介绍';
+        toggle.setAttribute('aria-label',`${open?'收起':'展开'}${copy.querySelector('h3').textContent}介绍`);
+      });
+      description.after(toggle);card.classList.add('has-disclosure');
+    });
     $('image-dialog-close').onclick=closeImageDialog;
     imageDialog.onclick=e=>{if(e.target===imageDialog)closeImageDialog()};
     ['pointermove','wheel','keydown','touchstart'].forEach(type=>imageDialog.addEventListener(type,revealDialogControls,{passive:true}));
