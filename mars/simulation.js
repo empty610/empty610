@@ -80,7 +80,23 @@
   const intro=$('mars-intro'),introToggle=$('intro-toggle');
   introToggle.onclick=()=>{const open=!intro.classList.contains('is-open');intro.classList.toggle('is-open',open);introToggle.setAttribute('aria-expanded',String(open));$('mars-intro-content').hidden=!open;introToggle.querySelector('.intro-mark').textContent=open?'−':'＋'};
   const dialog=$('image-dialog'),dialogImage=$('image-dialog-image'),caption=$('image-dialog-caption');
-  function openImage(card) { dialogImage.src=card.dataset.imageFull;dialogImage.alt=card.querySelector('img').alt;const copy=card.querySelector('.terrain-copy');if(copy)caption.innerHTML=copy.outerHTML;else caption.textContent=card.dataset.imageCaption;dialog.showModal();dialog.classList.add('is-controls-visible'); }
+  function formatLandformCaption(text) {
+    const sourceStart=text.lastIndexOf(' 来源：');
+    const description=sourceStart<0?text:text.slice(0,sourceStart);
+    const sentences=description.match(/[^。！？]+[。！？]?/g)||[description];
+    const content=document.createElement('div');content.className='landform-dialog-copy';
+    for(let i=0;i<sentences.length;i+=2){
+      const paragraph=document.createElement('p');
+      paragraph.textContent=sentences.slice(i,i+2).join('').trim();
+      content.append(paragraph);
+    }
+    if(sourceStart>=0){
+      const source=document.createElement('p');source.className='landform-dialog-source';
+      source.textContent=text.slice(sourceStart).trim();content.append(source);
+    }
+    caption.replaceChildren(content);
+  }
+  function openImage(card) { dialogImage.src=card.dataset.imageFull;dialogImage.alt=card.querySelector('img').alt;const copy=card.querySelector('.terrain-copy');if(copy)caption.innerHTML=copy.outerHTML;else formatLandformCaption(card.dataset.imageCaption);dialog.showModal();dialog.classList.add('is-controls-visible'); }
   document.querySelectorAll('[data-image-full]').forEach(card=>{card.onclick=e=>{if(!e.target.closest('a'))openImage(card)};if(card.classList.contains('terrain-card')){card.tabIndex=0;card.setAttribute('role','button');card.addEventListener('keydown',e=>{if(e.target===card && (e.key==='Enter'||e.key===' ')){e.preventDefault();openImage(card)}})}});
   $('image-dialog-close').onclick=()=>dialog.close();dialog.onclick=e=>{if(e.target===dialog)dialog.close()};
   window.MarsOrbitControl={CYCLE,getDay:()=>day,setDay,toggle:()=>setPlaying(!playing),setPlaying,isPlaying:()=>playing};

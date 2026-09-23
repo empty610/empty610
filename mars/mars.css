@@ -259,7 +259,7 @@
     .image-dialog {
       width: min(980px, calc(100% - 28px));
       max-width: none;
-      max-height: min(88vh, 860px);
+      max-height: min(92vh, 860px);
       padding: 0;
       overflow-x: hidden;
       overflow-y: auto;
@@ -275,6 +275,10 @@
     .image-dialog figure { margin: 0; }
     .image-dialog img { display: block; width: 100%; max-height: calc(88vh - 72px); object-fit: contain; background: #090806; }
     .image-dialog figcaption { padding: 13px 58px 14px 16px; color: #e8dcc7; font-size: 12px; line-height: 1.5; }
+    .landform-dialog-copy { width: 100%; }
+    .landform-dialog-copy p { margin: 0 0 10px; line-height: 1.75; }
+    .landform-dialog-copy p:last-child { margin-bottom: 0; }
+    .landform-dialog-source { color: #c8ad81; font-size: 11px; }
     .image-dialog .terrain-copy { padding: 0; }
     .image-dialog .terrain-copy h3 { color: #fff4df; font-size: 15px; }
     .image-dialog .terrain-copy p { min-height: 0; color: #e8dcc7; font-size: 12px; }
@@ -987,4 +991,3 @@
       #orbit-timeline .labels span:nth-child(2), #orbit-timeline .labels span:nth-child(4) { display:none; }
       .planet-view-tabs button { white-space:nowrap; font-size:9px; letter-spacing:0; }
     }
-  

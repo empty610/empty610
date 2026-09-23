@@ -118,7 +118,17 @@
     $('route-zoom-out').disabled=scale<=1;$('route-zoom-in').disabled=scale>=6;
     viewport.classList.toggle('is-zoomed',scale>1);
   }
-  function zoom(value){stopMotion();pendingFocus=false;scale=Math.max(1,Math.min(6,value));if(scale===1){panX=0;panY=0;activeWaypoint=-1;renderMarkers();}paintImage();}
+  function zoom(value,anchor){
+    stopMotion();pendingFocus=false;
+    const next=Math.max(1,Math.min(6,value));
+    if(anchor&&next!==scale){
+      panX=anchor.x-(anchor.x-panX)*next/scale;
+      panY=anchor.y-(anchor.y-panY)*next/scale;
+    }
+    scale=next;
+    if(scale===1){panX=0;panY=0;activeWaypoint=-1;renderMarkers();}
+    paintImage();
+  }
   function selectRover(id){
     const rover=data.find(r=>r.id===id);if(!rover)return;stopMotion();selected=rover;activeWaypoint=-1;detailMap=false;pendingFocus=false;
     $('rover-panel').style.setProperty('--rover-color',rover.color);
@@ -164,6 +174,13 @@
   routeImage.onerror=()=>{$('route-loading').hidden=false;$('route-loading').textContent='路线图暂时无法载入，请使用下方“原始地图”链接查看。';viewport.setAttribute('aria-busy','false');};
   function resetRoute(){zoom(1);if(detailMap){detailMap=false;loadRoute();}}
   $('route-zoom-in').onclick=()=>zoom(scale+.5);$('route-zoom-out').onclick=()=>zoom(scale-.5);$('route-fit').onclick=resetRoute;
+  viewport.addEventListener('wheel',e=>{
+    if(!routeImage.naturalWidth)return;
+    e.preventDefault();
+    const rect=viewport.getBoundingClientRect();
+    const delta=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?rect.height:1);
+    zoom(scale*Math.exp(-delta*.0015),{x:e.clientX-rect.left-rect.width/2,y:e.clientY-rect.top-rect.height/2});
+  },{passive:false});
   viewport.addEventListener('pointerdown',e=>{if(e.target.closest('button')||scale<=1||e.button!==0)return;stopMotion();drag={id:e.pointerId,x:e.clientX,y:e.clientY,panX,panY};viewport.setPointerCapture(e.pointerId);viewport.classList.add('is-dragging');e.preventDefault();});
   viewport.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;panX=drag.panX+e.clientX-drag.x;panY=drag.panY+e.clientY-drag.y;paintImage();});
   function stopDrag(){drag=null;viewport.classList.remove('is-dragging');}

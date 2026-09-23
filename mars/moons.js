@@ -83,13 +83,29 @@ window.setupMarsMoons=function({scene,camera,renderer,controls,world,sphere,stag
   // the current body before transferring the target so no direct path crosses
   // Mars or either moon on the way to the next close-up.
   const retreat=fromId!=='system'&&id!=='system'&&fromId!==id;
-  flight={start:performance.now(),duration:instant||reduced.matches?0:1550,target,fromTarget,fromPos,fromDistance,toDistance,fromDirection:fromPos.clone().sub(fromTarget).normalize(),retreat,escapeDistance:Math.max(fromDistance*1.35,toDistance*1.15,bodies.mars.bound*3.6)};
+  const returnToSystem=(fromId==='phobos'||fromId==='deimos')&&id==='system';
+  const fromDirection=fromPos.clone().sub(fromTarget).normalize();
+  const escapeDirection=fromTarget.clone().normalize();
+  flight={start:performance.now(),duration:instant||reduced.matches?0:returnToSystem?2200:1550,target,fromTarget,fromPos,fromDistance,toDistance,fromDirection,retreat,returnToSystem,escapeDirection,escapeDistance:Math.max(fromDistance*1.35,toDistance*1.15,bodies.mars.bound*3.6),turnRotation:new T.Quaternion().setFromUnitVectors(fromDirection,escapeDirection),settleRotation:new T.Quaternion().setFromUnitVectors(escapeDirection,direction)};
   if(!flight.duration)beforeFrame(flight.start);
  }
  toolbar.querySelectorAll('button').forEach(b=>b.onclick=()=>focus(b.dataset.body));
  function beforeFrame(time) {
   if(!flight)return;
   const f=flight,t=f.duration?Math.min(1,(time-f.start)/f.duration):1,ease=x=>x*x*(3-2*x),clamp=x=>Math.max(0,Math.min(1,x));
+  if(f.returnToSystem){
+   // Overlap the turn, retreat, target movement and final framing. The
+   // camera clears Mars before the target crosses back through its centre.
+   const turn=ease(clamp(t/.48));
+   const pull=ease(clamp((t-.10)/.58));
+   const travel=ease(clamp((t-.48)/.46));
+   const settle=ease(clamp((t-.68)/.32));
+   const dir=f.fromDirection.clone().applyQuaternion(new T.Quaternion().identity().slerp(f.turnRotation,turn));
+   if(t>.68)dir.copy(f.escapeDirection).applyQuaternion(new T.Quaternion().identity().slerp(f.settleRotation,settle));
+   controls.target.copy(f.fromTarget).lerp(f.target,travel);
+   const dist=(f.fromDistance+(f.escapeDistance-f.fromDistance)*pull)*(1-settle)+f.toDistance*settle;
+   camera.position.copy(controls.target).addScaledVector(dir,dist);
+  } else {
   const travel=f.retreat?ease(clamp((t-.18)/.54)):ease(Math.min(1,t/.72));
   const zoom=f.retreat?ease(clamp((t-.54)/.46)):ease(Math.max(0,(t-.28)/.72));
   controls.target.lerpVectors(f.fromTarget,f.target,travel);
@@ -98,6 +114,7 @@ window.setupMarsMoons=function({scene,camera,renderer,controls,world,sphere,stag
    ? (t<.36?f.fromDistance+(f.escapeDistance-f.fromDistance)*ease(t/.36):Math.exp(Math.log(f.escapeDistance)*(1-zoom)+Math.log(f.toDistance)*zoom))
    : Math.exp(Math.log(f.fromDistance)*(1-zoom)+Math.log(f.toDistance)*zoom);
   camera.position.copy(controls.target).addScaledVector(dir,dist);
+  }
   if(t===1){flight=null;limits(selected);controls.enabled=true;controls.enableDamping=true;controls.autoRotate=savedRotate;rotationButton.disabled=false;}
  }
  const point=new T.Vector3(),ray=new T.Raycaster();
