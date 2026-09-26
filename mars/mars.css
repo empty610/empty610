@@ -621,6 +621,16 @@
     .mars-orbit { stroke: rgba(183, 95, 64, .66); }
     .sight-line { stroke: rgba(86, 73, 59, .38); stroke-width: 1.2; stroke-dasharray: 4 5; }
     .sun-line { stroke: rgba(183, 95, 64, .24); }
+    .orbit-sun { cursor: pointer; outline: none; }
+    .orbit-sun .sun-hit { fill: transparent; }
+    .orbit-sun .sun-core, .orbit-sun .sun-halo { transform-box: fill-box; transform-origin: center; transition: transform .22s ease, opacity .22s ease; }
+    .orbit-sun .sun-halo { pointer-events: none; }
+    .orbit-sun .sun-focus-ring { fill: none; stroke: rgba(183, 95, 64, .82); stroke-width: 1.5; opacity: 0; transition: opacity .22s ease; }
+    .orbit-sun:hover .sun-core, .orbit-sun:focus-visible .sun-core { transform: scale(1.07); }
+    .orbit-sun:hover .sun-focus-ring, .orbit-sun:focus-visible .sun-focus-ring { opacity: 1; }
+    .orbit-sun.is-playing .sun-halo { animation: orbit-sun-pulse 2.2s ease-in-out infinite; }
+    @keyframes orbit-sun-pulse { 0%,100% { transform: scale(.94); opacity: .72; } 50% { transform: scale(1.12); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .orbit-sun.is-playing .sun-halo { animation: none; } }
     .label { fill: #807365; font: 11px var(--mono); }
     .label.blue { fill: #427f98; }
     .label.gold { fill: #9a7728; }

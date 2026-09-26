@@ -71,9 +71,12 @@
     window.dispatchEvent(new CustomEvent('mars-orbit-timechange',{detail:{day,cycle:CYCLE,playing}}));
   }
   function setDay(value,pause=false) { if(pause)setPlaying(false);day=clamp(value,0,CYCLE);render(); }
-  function setPlaying(value) { playing=value;last=0;$('play').textContent=value?'Ⅱ':'▶';$('play').setAttribute('aria-label',value?'暂停日心轨道与视运动':'播放日心轨道与视运动');$('play').setAttribute('aria-pressed',String(value));window.dispatchEvent(new CustomEvent('mars-orbit-playchange',{detail:{playing}})); }
+  function setPlaying(value) { playing=value;last=0;$('play').textContent=value?'Ⅱ':'▶';$('play').setAttribute('aria-label',value?'暂停日心轨道与视运动':'播放日心轨道与视运动');$('play').setAttribute('aria-pressed',String(value));const sun=$('orbit-sun');sun.classList.toggle('is-playing',value);sun.setAttribute('aria-label',value?'暂停日心轨道与视运动':'播放日心轨道与视运动');sun.setAttribute('aria-pressed',String(value));window.dispatchEvent(new CustomEvent('mars-orbit-playchange',{detail:{playing}})); }
   function frame(t) { if(playing && !document.hidden) { if(last) { day=(day+Math.min(t-last,100)*.018*speed)%CYCLE;render(); } last=t; } else last=0;requestAnimationFrame(frame); }
-  $('play').onclick=()=>setPlaying(!playing);
+  const togglePlaying=()=>setPlaying(!playing);
+  $('play').onclick=togglePlaying;
+  $('orbit-sun').onclick=togglePlaying;
+  $('orbit-sun').onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePlaying();}};
   $('reset').onclick=()=>setDay(0,true);
   $('day').oninput=e=>setDay(+e.target.value,true);
   document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>{speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b))})});

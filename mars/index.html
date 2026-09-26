@@ -6,12 +6,12 @@
   <meta name="description" content="交互探索火星三维模型、地貌、合冲周期与逆行，认识这颗红色星球。">
   <title>Mars · empty610.com</title>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; worker-src 'none'; manifest-src 'self'; form-action 'none'; upgrade-insecure-requests" />
-  <link rel="stylesheet" href="mars.css?v=20260923-terrain-fold" />
+  <link rel="stylesheet" href="mars.css?v=20260926-orbit-sun" />
   <link rel="stylesheet" href="site.css?v=20260923" />
   <script defer src="vendor/three.js"></script>
   <script defer src="vendor/OrbitControls.js"></script>
   <script defer src="assets/mars-texture.js"></script>
-  <script defer src="simulation.js?v=20260923-terrain-fold"></script>
+  <script defer src="simulation.js?v=20260926-orbit-sun"></script>
   <script defer src="assets/moons/moon-assets.js"></script>
   <script defer src="moons.js?v=20260926-texture-guard"></script>
   <script defer src="planet.js"></script>
@@ -188,8 +188,8 @@
         </section>
         <div class="orbit-stage">
         <svg viewBox="0 0 640 530" role="img" aria-label="地球与火星日心轨道">
-          <defs><radialGradient id="sun"><stop stop-color="#fff9d8"/><stop offset=".38" stop-color="#ffd778"/><stop offset="1" stop-color="#f09a42"/></radialGradient><radialGradient id="mars"><stop stop-color="#edb78a"/><stop offset=".62" stop-color="#c77950"/><stop offset="1" stop-color="#7b3e2c"/></radialGradient><filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-          <g id="stars" opacity=".3"></g><circle cx="320" cy="265" r="137" class="orbit-line earth-orbit"/><circle cx="320" cy="265" r="208.747" class="orbit-line mars-orbit"/><line id="earth-sun" class="sun-line"/><line id="earth-mars" class="sight-line"/><circle cx="320" cy="265" r="24" fill="url(#sun)" filter="url(#glow)"/><text x="320" y="310" text-anchor="middle" class="label">太阳</text>
+          <defs><radialGradient id="sun" cx="36%" cy="31%" r="70%"><stop stop-color="#fffde8"/><stop offset=".24" stop-color="#ffe997"/><stop offset=".66" stop-color="#ffc15b"/><stop offset="1" stop-color="#e9822f"/></radialGradient><radialGradient id="sun-halo"><stop stop-color="#ffd56f" stop-opacity=".46"/><stop offset=".48" stop-color="#ffc25a" stop-opacity=".18"/><stop offset="1" stop-color="#f2a23e" stop-opacity="0"/></radialGradient><radialGradient id="mars"><stop stop-color="#edb78a"/><stop offset=".62" stop-color="#c77950"/><stop offset="1" stop-color="#7b3e2c"/></radialGradient></defs>
+          <g id="stars" opacity=".3"></g><circle cx="320" cy="265" r="137" class="orbit-line earth-orbit"/><circle cx="320" cy="265" r="208.747" class="orbit-line mars-orbit"/><line id="earth-sun" class="sun-line"/><line id="earth-mars" class="sight-line"/><g id="orbit-sun" class="orbit-sun" transform="translate(320 265)" role="button" tabindex="0" aria-label="播放日心轨道与视运动" aria-pressed="false"><title>单击播放或暂停日心轨道与视运动</title><circle class="sun-hit" r="39"/><circle class="sun-halo" r="44" fill="url(#sun-halo)"/><circle class="sun-core" r="24" fill="url(#sun)"/><circle class="sun-focus-ring" r="29"/></g><text x="320" y="310" text-anchor="middle" class="label">太阳</text>
           <g id="earth"><circle r="15" fill="#65b6d9"/><path d="M-13 4Q-4-2 3 2T13-3" fill="none" stroke="#bce9d6" stroke-width="3" opacity=".8"/><circle r="23" fill="none" stroke="rgba(103,190,225,.35)" stroke-dasharray="2 3"/></g><text id="earth-label" text-anchor="middle" class="label blue">地球</text>
           <g id="mars-dot"><circle r="12" fill="url(#mars)"/><circle r="18" fill="none" stroke="rgba(226,187,127,.3)"/></g><text id="mars-label" text-anchor="middle" class="label gold">火星</text>
           <g transform="translate(24 32)"><circle r="4" fill="#70c3e6"/><text x="13" y="4" class="label">地球轨道 · 1 AU</text><circle cx="150" r="4" fill="#d7a964"/><text x="163" y="4" class="label">火星轨道 · 1.524 AU</text></g>
