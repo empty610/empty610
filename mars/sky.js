@@ -60,7 +60,8 @@
     windowNote.hidden=visible;
     windowNote.textContent=time<start?'当前构型早于本图展示时段，继续播放可进入逆行观察区间。':'当前构型晚于本图展示时段，可点击“冲”返回逆行观察区间。';
     $('sky-mars').setAttribute('transform',`translate(${p.x} ${p.y})`);
-    $('sky-date').textContent=visible?dateText(time)+' UTC · 事件对应':'图示时段：2024.11—2025.04';
+    const dateOutput=$('sky-date');
+    if(dateOutput)dateOutput.textContent=visible?dateText(time)+' UTC · 事件对应':'图示时段：2024.11—2025.04';
     const status=!visible?'超出图示时段':Math.abs(velocity)<.004?'留点附近':velocity<0?'逆行 · 向西 →':'顺行 · 向东 ←';
     if($('sky-status').textContent!==status) $('sky-status').textContent=status;
     document.querySelectorAll('[data-sky-event]').forEach((b,i)=>b.classList.toggle('active',Math.abs(time-dates[i])<DAY));

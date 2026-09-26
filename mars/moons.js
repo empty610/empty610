@@ -46,7 +46,7 @@ window.setupMarsMoons=function({scene,camera,renderer,controls,world,sphere,stag
   for(let j=0;j<idx.count;j+=3){a.fromBufferAttribute(p,idx.getX(j));c.fromBufferAttribute(p,idx.getX(j+1));d.fromBufferAttribute(p,idx.getX(j+2));volume+=a.dot(c.cross(d))/6;}
   const radius=Math.cbrt(Math.abs(volume)*3/(4*Math.PI));g.scale(b.radius*unit/radius,b.radius*unit/radius,b.radius*unit/radius);g.computeBoundingSphere();
   const mat=new T.MeshStandardMaterial(surfaceMaterialOptions||{roughness:.88,metalness:0,color:0xffffff,emissive:0xffffff,emissiveIntensity:.2});
-  new T.TextureLoader().load(data.texture,map=>{map.colorSpace=T.SRGBColorSpace;map.flipY=false;map.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());mat.map=map;mat.emissiveMap=map;mat.needsUpdate=true;b.textureLoaded=true;},undefined,()=>{b.textureLoaded=false;info.querySelector('p').textContent='卫星贴图未能载入，请刷新页面。';});
+  new T.TextureLoader().load(data.texture,map=>{map.colorSpace=T.SRGBColorSpace;map.flipY=false;map.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());mat.map=map;mat.emissiveMap=map;mat.needsUpdate=true;b.textureLoaded=true;},undefined,()=>{b.textureLoaded=false;const message=info.querySelector('p');if(message)message.textContent='卫星贴图未能载入，请刷新页面。';});
   b.mesh=new T.Mesh(g,mat);b.bound=g.boundingSphere.radius;
   const plane=new T.Group();plane.rotation.x=T.MathUtils.degToRad(b.i);world.add(plane);
   const at=angle=>new T.Vector3(b.a*unit*(Math.cos(angle)-b.e),0,b.a*unit*Math.sqrt(1-b.e*b.e)*Math.sin(angle));
